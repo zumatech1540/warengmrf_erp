@@ -19,7 +19,7 @@ def generate_payment_receipt(payment):
 
     # HEADER
     p.setFont("Helvetica-Bold", 16)
-    p.drawString(180, 800, "NAIBERI MRF ERP")
+    p.drawString(180, 800, "Wareng ERP")
 
     p.setFont("Helvetica", 12)
     p.drawString(200, 770, "PAYMENT RECEIPT")
@@ -44,7 +44,7 @@ def generate_payment_receipt(payment):
 
     p.line(50, 560, 550, 560)
 
-    p.drawString(60, 520, "Thank you for using Naiberi MRF ERP System")
+    p.drawString(60, 520, "Thank you for using Wareng ERP System")
 
     p.showPage()
     p.save()
