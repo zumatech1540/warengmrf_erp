@@ -1,0 +1,1 @@
+web: gunicorn naiberi_erp.wsgi:application

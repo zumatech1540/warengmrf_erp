@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- ================= HEADER ================= -->
+    <div class="mb-3">
+        <h2 class="fw-bold">Inventory Dashboard</h2>
+        <p class="text-muted">Control center for stock, movement, and valuation</p>
+    </div>
+
+    <!-- ================= QUICK NAVIGATION ================= -->
+    <div class="row mb-4 g-3">
+
+        <div class="col-md-2">
+            <a href="/inventory/items/" class="text-decoration-none">
+                <div class="card p-3 text-center shadow-sm">
+                    <h6>Items</h6>
+                    <small class="text-muted">Stock Master</small>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-2">
+            <a href="/inventory/movements/" class="text-decoration-none">
+                <div class="card p-3 text-center shadow-sm">
+                    <h6>Movements</h6>
+                    <small class="text-muted">IN / OUT</small>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-2">
+            <a href="/inventory/reorder/" class="text-decoration-none">
+                <div class="card p-3 text-center shadow-sm">
+                    <h6>Reorder</h6>
+                    <small class="text-muted">Alerts</small>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-2">
+            <a href="/inventory/profit-by-category/" class="text-decoration-none">
+                <div class="card p-3 text-center shadow-sm">
+                    <h6>Profit</h6>
+                    <small class="text-muted">Analytics</small>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-2">
+            <a href="/inventory/category-dashboard/" class="text-decoration-none">
+                <div class="card p-3 text-center shadow-sm">
+                    <h6>Categories</h6>
+                    <small class="text-muted">Analysis</small>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-2">
+            <a href="/finance/profit-loss/" class="text-decoration-none">
+                <div class="card p-3 text-center shadow-sm">
+                    <h6>Finance</h6>
+                    <small class="text-muted">P&L</small>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- ================= KPI CARDS ================= -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-3">
+            <div class="card p-3 bg-primary text-white">
+                <h6>Total Items</h6>
+                <h3>{{ total_items }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card p-3 bg-success text-white">
+                <h6>Total Stock Units</h6>
+                <h3>{{ total_stock_value }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card p-3 bg-info text-white">
+                <h6>Stock Value</h6>
+                <h3>{{ total_stock_amount }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card p-3 bg-warning text-dark">
+                <h6>Low Stock</h6>
+                <h3>{{ low_stock_items|length }}</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= CATEGORY SUMMARY ================= -->
+    <div class="card mb-4 shadow-sm">
+
+        <div class="card-header bg-dark text-white">
+            <strong>Stock by Category</strong>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                {% for cat in category_summary %}
+
+                <div class="col-md-3 mb-3">
+                    <div class="card p-3 text-center">
+                        <h6 class="text-uppercase">{{ cat.name }}</h6>
+                        <hr>
+                        <h5 class="text-primary">{{ cat.stock }}</h5>
+                        <small>Units</small>
+                        <br><br>
+                        <h6 class="text-success">{{ cat.value }}</h6>
+                        <small>Value</small>
+                    </div>
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= LOW STOCK ALERT ================= -->
+    <div class="card mb-4 shadow-sm">
+
+        <div class="card-header bg-danger text-white">
+            <strong>Reorder Alerts</strong>
+        </div>
+
+        <div class="card-body">
+
+            {% if low_stock_items %}
+
+            <table class="table table-hover">
+
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Stock</th>
+                        <th>Reorder Level</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in low_stock_items %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.current_stock }}</td>
+                        <td>{{ item.reorder_level }}</td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+                <p class="text-muted">All stock levels are healthy 🎉</p>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <!-- ================= RECENT MOVEMENTS ================= -->
+    <div class="card mb-4 shadow-sm">
+
+        <div class="card-header">
+            <strong>Recent Movements</strong>
+        </div>
+
+        <div class="card-body table-responsive">
+
+            <table class="table table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Type</th>
+                        <th>Qty</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for m in recent_movements %}
+                    <tr>
+                        <td>{{ m.item.name }}</td>
+                        <td>{{ m.movement_type }}</td>
+                        <td>{{ m.quantity }}</td>
+                        <td>{{ m.created_at|date:"d M Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+    <!-- ================= TOP ITEMS ================= -->
+    <div class="card mb-4 shadow-sm">
+
+        <div class="card-header">
+            <strong>Top Items</strong>
+        </div>
+
+        <div class="card-body">
+
+            <ul class="list-group">
+
+                {% for item in top_items %}
+                <li class="list-group-item d-flex justify-content-between">
+                    {{ item.name }}
+                    <span class="badge bg-primary">
+                        {{ item.current_stock }}
+                    </span>
+                </li>
+                {% endfor %}
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

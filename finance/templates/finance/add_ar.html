@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>Add Accounts Receivable</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label>Customer Name</label>
+            <input type="text" name="customer_name" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Amount Due</label>
+            <input type="number" step="0.01" name="amount_due" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Amount Paid</label>
+            <input type="number" step="0.01" name="amount_paid" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>Description</label>
+            <textarea name="description" class="form-control"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>Due Date</label>
+            <input type="date" name="due_date" class="form-control" required>
+        </div>
+
+        <button class="btn btn-success">Save AR</button>
+    </form>
+<a href="{% url 'finance_dashboard' %}"
+   class="btn btn-outline-primary btn-md shadow-sm px-3">
+    ⬅ Return to Dashboard
+</a>
+</div>
+
+{% endblock %}

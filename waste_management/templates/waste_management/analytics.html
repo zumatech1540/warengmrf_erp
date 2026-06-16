@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+<h3>📊 Waste Analytics</h3>
+
+<div class="card p-3">
+
+<canvas id="wasteChart"></canvas>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const ctx = document.getElementById('wasteChart');
+
+new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: ['Received', 'Processing', 'Completed'],
+        datasets: [{
+            data: [
+                {{ chart.received }},
+                {{ chart.processing }},
+                {{ chart.completed }}
+            ],
+            backgroundColor: ['blue', 'orange', 'green']
+        }]
+    }
+});
+</script>
+
+{% endblock %}

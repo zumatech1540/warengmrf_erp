@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>AR Aging Report</h2>
+
+    <div class="row mt-4">
+
+        <div class="col-md-3">
+            <div class="card bg-success text-white p-3">
+                <h5>0–30 Days</h5>
+                <h3>{{ bucket_0_30|length }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-info text-white p-3">
+                <h5>31–60 Days</h5>
+                <h3>{{ bucket_31_60|length }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark p-3">
+                <h5>61–90 Days</h5>
+                <h3>{{ bucket_61_90|length }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-danger text-white p-3">
+                <h5>90+ Days</h5>
+                <h3>{{ bucket_90_plus|length }}</h3>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+<a href="/inventory/dashboard/" class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+{% endblock %}

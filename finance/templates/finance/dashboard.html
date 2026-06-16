@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- =========================
+         FINANCE MODULE NAVBAR
+    ========================== -->
+    <div class="card shadow-sm mb-4 border-0">
+
+        <div class="card-body py-2">
+
+            <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+
+                <div class="d-flex flex-wrap gap-2">
+
+                    <a href="{% url 'finance_dashboard' %}" class="btn btn-dark btn-sm">
+                        🏠 Dashboard
+                    </a>
+
+                    <a href="{% url 'income_list' %}" class="btn btn-outline-success btn-sm">
+                        💰 Income
+                    </a>
+
+                    <a href="{% url 'expense_list' %}" class="btn btn-outline-danger btn-sm">
+                        💸 Expenses
+                    </a>
+
+                    <a href="{% url 'ar_list' %}" class="btn btn-outline-primary btn-sm">
+                        📊 AR
+                    </a>
+
+                    <a href="{% url 'ap_list' %}" class="btn btn-outline-warning btn-sm">
+                        📉 AP
+                    </a>
+
+                    <a href="{% url 'make_payment' %}" class="btn btn-outline-dark btn-sm">
+                        💳 Payments
+                    </a>
+
+                    <a href="#" class="btn btn-outline-info btn-sm">
+                        📒 Ledger
+                    </a>
+
+                </div>
+
+                <div class="d-flex gap-2">
+
+                    <a href="{% url 'add_income' %}" class="btn btn-success btn-sm">
+                        + Income
+                    </a>
+
+                    <a href="{% url 'add_expense' %}" class="btn btn-danger btn-sm">
+                        + Expense
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h3 class="fw-bold">💰 Finance Dashboard</h3>
+
+        <a href="{% url 'make_payment' %}" class="btn btn-dark">
+            + New Payment
+        </a>
+
+    </div>
+
+    <!-- =========================
+         KPI CARDS
+    ========================== -->
+    <div class="row g-3">
+
+        <div class="col-md-4">
+            <div class="card bg-success text-white shadow-sm">
+                <div class="card-body">
+                    <h6>Total Income</h6>
+                    <h2>KES {{ total_income }}</h2>
+                    <a href="{% url 'income_list' %}" class="text-white">View Income →</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-danger text-white shadow-sm">
+                <div class="card-body">
+                    <h6>Total Expenses</h6>
+                    <h2>KES {{ total_expense }}</h2>
+                    <a href="{% url 'expense_list' %}" class="text-white">View Expenses →</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-primary text-white shadow-sm">
+                <div class="card-body">
+                    <h6>Net Profit</h6>
+                    <h2>KES {{ profit }}</h2>
+                    <small>Income - Expenses</small>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =========================
+         MODULE CARDS
+    ========================== -->
+    <div class="row mt-4 g-3">
+
+        <div class="col-md-3">
+            <div class="card shadow-sm text-center p-3">
+                <h5>📊 Accounts Receivable</h5>
+                <a href="{% url 'ar_list' %}" class="btn btn-outline-primary btn-sm mt-2 w-100">Open</a>
+                <a href="{% url 'add_ar' %}" class="btn btn-success btn-sm mt-2 w-100">Add</a>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm text-center p-3">
+                <h5>📉 Accounts Payable</h5>
+                <a href="{% url 'ap_list' %}" class="btn btn-outline-warning btn-sm mt-2 w-100">Open</a>
+                <a href="{% url 'add_ap' %}" class="btn btn-success btn-sm mt-2 w-100">Add</a>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm text-center p-3">
+                <h5>💳 Payments</h5>
+                <a href="{% url 'make_payment' %}" class="btn btn-dark btn-sm mt-2 w-100">New Payment</a>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm text-center p-3">
+                <h5>📒 Ledger</h5>
+                <a href="#" class="btn btn-outline-info btn-sm mt-2 w-100">View Ledger</a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

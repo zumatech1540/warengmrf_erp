@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2 class="fw-bold">Stock Forecasting System</h2>
+    <p class="text-muted">Predict future stock consumption & reorder timing</p>
+
+    <div class="card shadow-sm mt-3">
+
+        <div class="card-body table-responsive">
+
+            <table class="table table-bordered">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Item</th>
+                        <th>Current Stock</th>
+                        <th>Daily Usage</th>
+                        <th>Days Remaining</th>
+                        <th>Reorder Level</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for f in forecasts %}
+
+                    <tr>
+
+                        <td>{{ f.item }}</td>
+
+                        <td>{{ f.current_stock }}</td>
+
+                        <td>{{ f.daily_usage }}</td>
+
+                        <td>
+                            {% if f.days_remaining < 7 %}
+                                <span class="badge bg-danger">
+                                    {{ f.days_remaining }} days
+                                </span>
+                            {% elif f.days_remaining < 20 %}
+                                <span class="badge bg-warning text-dark">
+                                    {{ f.days_remaining }} days
+                                </span>
+                            {% else %}
+                                <span class="badge bg-success">
+                                    {{ f.days_remaining }} days
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ f.reorder_level }}</td>
+
+                        <td>
+                            {% if f.days_remaining < 7 %}
+                                🔴 CRITICAL
+                            {% elif f.days_remaining < 20 %}
+                                🟡 WARNING
+                            {% else %}
+                                🟢 HEALTHY
+                            {% endif %}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>
+<a href="/inventory/dashboard/" class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <h3 class="mb-4">Sales Dashboard</h3>
+
+    <!-- KPI CARDS -->
+    <div class="row">
+
+        <div class="col-md-4">
+            <div class="card shadow p-3">
+                <h5>Total Sales</h5>
+                <h2>{{ total_sales }}</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow p-3">
+                <h5>Total Revenue</h5>
+                <h2 class="text-success">
+                    KES {{ total_revenue }}
+                </h2>
+            </div>
+        </div>
+
+    </div>
+
+    <hr>
+
+    <a href="{% url 'create_sale' %}" class="btn btn-primary">
+        + Create Sale
+    </a>
+
+    <a href="{% url 'sale_list' %}" class="btn btn-secondary">
+        View All Sales
+    </a>
+
+</div>
+
+{% endblock %}

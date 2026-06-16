@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2 class="fw-bold">Reorder System</h2>
+    <p class="text-muted">Monitor low stock and reorder suggestions</p>
+
+    <!-- ================= LOW STOCK ALERT ================= -->
+    <div class="card shadow-sm mt-3">
+        <div class="card-header bg-danger text-white">
+            <strong>Items Needing Reorder</strong>
+        </div>
+
+        <div class="card-body table-responsive">
+
+            <table class="table table-bordered">
+
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Current Stock</th>
+                        <th>Reorder Level</th>
+                        <th>Suggested Qty</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in low_stock_items %}
+
+                    <tr>
+                        <td>{{ item.name }}</td>
+
+                        <td>
+                            <span class="badge bg-danger">
+                                {{ item.current_stock }}
+                            </span>
+                        </td>
+
+                        <td>{{ item.reorder_level }}</td>
+
+                        <td>{{ item.reorder_quantity }}</td>
+
+                        <td>
+                            <span class="badge bg-warning text-dark">
+                                REORDER NOW
+                            </span>
+                            <a href="{% url 'run_auto_reorder' %}" class="btn btn-danger mb-3">
+    🚀 Generate Purchase Order Automatically
+</a>
+                        </td>
+                    </tr>
+
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-success">
+                            All stock levels are healthy 🎉
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+    <!-- ================= ALL ITEMS ================= -->
+    <div class="card mt-4 shadow-sm">
+
+        <div class="card-header">
+            <strong>All Items Overview</strong>
+        </div>
+
+        <div class="card-body table-responsive">
+
+            <table class="table table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Stock</th>
+                        <th>Reorder Level</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in all_items %}
+                    <tr>
+
+                        <td>{{ item.name }}</td>
+
+                        <td>{{ item.current_stock }}</td>
+
+                        <td>{{ item.reorder_level }}</td>
+
+                        <td>
+                            {% if item.needs_reorder %}
+                                <span class="badge bg-danger">LOW</span>
+                            {% else %}
+                                <span class="badge bg-success">OK</span>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>
+<a href="/inventory/dashboard/" class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+{% endblock %}

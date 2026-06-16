@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Add Inventory Item</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <label>Name</label>
+        <input type="text" name="name" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Description</label>
+        <textarea name="description" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label>Unit</label>
+        <input type="text" name="unit" class="form-control" placeholder="kg, pcs, bags">
+    </div>
+
+    <button class="btn btn-success">Save Item</button>
+</form>
+<a href="/inventory/dashboard/" class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- ================= HEADER ================= -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <div>
+            <h2 class="fw-bold">Sales Order Details</h2>
+            <p class="text-muted mb-0">
+                Order: <strong>{{ order.order_number }}</strong>
+            </p>
+        </div>
+
+        <a href="{% url 'sales_list' %}" class="btn btn-secondary">
+            Back
+        </a>
+
+    </div>
+
+    <!-- ================= ORDER INFO ================= -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-4">
+                    <p><strong>Customer:</strong> {{ order.customer }}</p>
+                </div>
+
+                <div class="col-md-4">
+                    <p><strong>Status:</strong> {{ order.status }}</p>
+                </div>
+
+                <div class="col-md-4">
+                    <p><strong>Date:</strong> {{ order.order_date }}</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ================= ITEMS TABLE ================= -->
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <h5 class="mb-3">Order Items</h5>
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover">
+
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Item</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for item in order.items.all %}
+
+                        <tr>
+
+                            <td>{{ forloop.counter }}</td>
+
+                            <td>{{ item.item.name }}</td>
+
+                            <td>{{ item.quantity }}</td>
+
+                            <td>{{ item.unit_price }}</td>
+
+                            <td class="fw-bold text-success">
+                                {{ item.total }}
+                            </td>
+
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-3">
+                                No items found in this order.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- ================= TOTAL ================= -->
+            <div class="text-end mt-3">
+
+                <h4>
+                    Total:
+                    <span class="text-success">
+                        {{ order.total_amount }}
+                    </span>
+                </h4>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<a href="/inventory/dashboard/" class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+{% endblock %}

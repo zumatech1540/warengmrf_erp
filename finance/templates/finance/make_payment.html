@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <h3 class="mb-3">💳 Make Payment</h3>
+            <p class="text-muted">
+                Process Accounts Receivable (Customer) and Accounts Payable (Supplier) payments
+            </p>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <!-- PAYMENT TYPE -->
+                <div class="mb-3">
+                    <label class="form-label">Payment Type</label>
+                    <select name="payment_type" id="payment_type" class="form-select" required>
+                        <option value="">-- Select Type --</option>
+                        <option value="ar">Customer Payment (AR)</option>
+                        <option value="ap">Supplier Payment (AP)</option>
+                    </select>
+                </div>
+
+                <!-- AR SECTION -->
+                <div id="ar_section" class="mb-3" style="display:none;">
+                    <label class="form-label">Select Customer Invoice</label>
+                    <select name="ar_id" class="form-select">
+                        <option value="">-- Select AR Record --</option>
+                        {% for ar in ars %}
+                            <option value="{{ ar.id }}">
+                                {{ ar.customer_name }} | Balance: {{ ar.get_balance }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- AP SECTION -->
+                <div id="ap_section" class="mb-3" style="display:none;">
+                    <label class="form-label">Select Supplier Bill</label>
+                    <select name="ap_id" class="form-select">
+                        <option value="">-- Select AP Record --</option>
+                        {% for ap in aps %}
+                            <option value="{{ ap.id }}">
+                                {{ ap.supplier_name }} | Balance: {{ ap.get_balance }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- AMOUNT -->
+                <div class="mb-3">
+                    <label class="form-label">Amount</label>
+                    <input type="number" step="0.01" name="amount" class="form-control" required>
+                </div>
+
+                <!-- METHOD -->
+                <div class="mb-3">
+                    <label class="form-label">Payment Method</label>
+                    <select name="method" class="form-select">
+                        <option value="cash">Cash</option>
+                        <option value="bank">Bank Transfer</option>
+                        <option value="mpesa">M-Pesa</option>
+                    </select>
+                </div>
+
+                <!-- REFERENCE -->
+                <div class="mb-3">
+                    <label class="form-label">Reference (Optional)</label>
+                    <input type="text" name="reference" class="form-control" placeholder="Transaction reference / receipt no">
+                </div>
+
+                <!-- BUTTON -->
+                <button type="submit" class="btn btn-primary w-100">
+                    💰 Submit Payment
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+    <a href="{% url 'finance_dashboard' %}"
+   class="btn btn-outline-primary btn-md shadow-sm px-3">
+    ⬅ Return to Dashboard
+</a>
+
+    <!-- PAYMENT HISTORY -->
+    <div class="card mt-4 shadow-sm">
+        <div class="card-body">
+
+            <h4 class="mb-3">Payment History</h4>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Party</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Reference</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in payments %}
+                    <tr>
+                        <td>{{ p.get_payment_type_display }}</td>
+                        <td>
+                            {% if p.payment_type == 'ar' %}
+                                {{ p.ar.customer_name }}
+                            {% elif p.payment_type == 'ap' %}
+                                {{ p.ap.supplier_name }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>{{ p.amount }}</td>
+                        <td>{{ p.method }}</td>
+                        <td>{{ p.reference }}</td>
+                        <td>{{ p.created_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+</div>
+
+<!-- SIMPLE JS LOGIC -->
+<script>
+    const paymentType = document.getElementById("payment_type");
+    const arSection = document.getElementById("ar_section");
+    const apSection = document.getElementById("ap_section");
+
+    paymentType.addEventListener("change", function () {
+
+        if (this.value === "ar") {
+            arSection.style.display = "block";
+            apSection.style.display = "none";
+        }
+        else if (this.value === "ap") {
+            apSection.style.display = "block";
+            arSection.style.display = "none";
+        }
+        else {
+            arSection.style.display = "none";
+            apSection.style.display = "none";
+        }
+
+    });
+</script>
+
+{% endblock %}

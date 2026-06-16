@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2 class="fw-bold">👤 Employee Profile</h2>
+
+    <div class="card shadow-sm mt-3">
+        <div class="card-body">
+
+            <h4>{{ employee.first_name }} {{ employee.last_name }}</h4>
+
+            <p><strong>Employee No:</strong> {{ employee.employee_number }}</p>
+            <p><strong>Phone:</strong> {{ employee.phone }}</p>
+            <p><strong>Email:</strong> {{ employee.email }}</p>
+            <p><strong>Position:</strong> {{ employee.position }}</p>
+            <p><strong>Salary:</strong> {{ employee.basic_salary }}</p>
+            <p><strong>Status:</strong> {{ employee.status }}</p>
+
+            <hr>
+
+            <a href="{% url 'mark_attendance' employee.id %}" class="btn btn-primary">
+                Mark Attendance
+            </a>
+
+            <a href="{% url 'edit_employee' employee.id %}" class="btn btn-warning">
+                Edit
+            </a>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

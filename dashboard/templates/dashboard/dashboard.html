@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- =========================
+        ERP HEADER
+    ========================== -->
+    <div class="card border-0 shadow-lg mb-4 overflow-hidden">
+        <div class="card-body bg-success text-white p-5">
+            <h1 class="fw-bold">♻ NAIBERI MRF ERP</h1>
+
+            <p class="lead mb-0">
+                Enterprise Resource Planning System
+            </p>
+
+            <small>
+                Waste • Inventory • Sales • Finance • HR • Logistics
+            </small>
+        </div>
+    </div>
+
+    <!-- =========================
+        KPI CARDS
+    ========================== -->
+    <div class="row">
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow border-0 text-center p-3">
+                <h6>Total Items</h6>
+                <h3 class="text-primary">{{ total_items }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow border-0 text-center p-3">
+                <h6>Stock Value</h6>
+                <h3 class="text-success">{{ total_stock_value }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow border-0 text-center p-3">
+                <h6>Low Stock Items</h6>
+                <h3 class="text-warning">{{ low_stock_items }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow border-0 text-center p-3">
+                <h6>Waste Today</h6>
+                <h3 class="text-danger">{{ waste_today }}</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =========================
+        SECOND KPI ROW
+    ========================== -->
+    <div class="row mt-2">
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow border-0 text-center p-3">
+                <h6>Total Sales</h6>
+                <h3 class="text-dark">{{ total_sales }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow border-0 text-center p-3">
+                <h6>Sales Today</h6>
+                <h3 class="text-info">{{ sales_today }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow border-0 text-center p-3">
+                <h6>Purchases Today</h6>
+                <h3 class="text-secondary">{{ purchases_today }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow border-0 text-center p-3">
+                <h6>Stock Flow</h6>
+                <h5>IN: {{ stock_in }} | OUT: {{ stock_out }}</h5>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =========================
+        CHART SECTION
+    ========================== -->
+    <div class="row mt-4">
+
+        <!-- SALES CHART -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow p-3">
+                <h5>Sales Trend (7 Days)</h5>
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- WASTE CHART -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow p-3">
+                <h5>Waste Intake Trend</h5>
+                <canvas id="wasteChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <!-- STOCK CHART -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow p-3">
+                <h5>Stock IN vs OUT</h5>
+                <canvas id="stockChart"></canvas>
+            </div>
+        </div>
+
+        <!-- TOP ITEMS -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow p-3">
+                <h5>Top Inventory Items</h5>
+                <canvas id="itemChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =========================
+        USER INFO
+    ========================== -->
+    <div class="card shadow border-0 mt-3">
+        <div class="card-body">
+            <div class="row">
+
+                <div class="col-md-4">
+                    <b>User:</b> {{ request.user.username }}
+                </div>
+
+                <div class="col-md-4">
+                    <b>Role:</b> {{ request.user.role }}
+                </div>
+
+                <div class="col-md-4">
+                    <span class="badge bg-success">Online</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- =========================
+    CHART.JS LIBRARY
+========================== -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    // SALES CHART
+    new Chart(document.getElementById('salesChart'), {
+        type: 'line',
+        data: {
+            labels: {{ sales_labels|safe }},
+            datasets: [{
+                label: 'Sales',
+                data: {{ sales_data|safe }},
+                borderColor: 'blue',
+                fill: false
+            }]
+        }
+    });
+
+    // WASTE CHART
+    new Chart(document.getElementById('wasteChart'), {
+        type: 'line',
+        data: {
+            labels: {{ waste_labels|safe }},
+            datasets: [{
+                label: 'Waste Intake',
+                data: {{ waste_data|safe }},
+                borderColor: 'green',
+                fill: false
+            }]
+        }
+    });
+
+    // STOCK IN VS OUT
+    new Chart(document.getElementById('stockChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Stock IN', 'Stock OUT'],
+            datasets: [{
+                label: 'Transactions',
+                data: [{{ stock_in }}, {{ stock_out }}],
+                backgroundColor: ['green', 'red']
+            }]
+        }
+    });
+
+    // TOP ITEMS
+    new Chart(document.getElementById('itemChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ item_labels|safe }},
+            datasets: [{
+                label: 'Stock Level',
+                data: {{ item_stock|safe }},
+                backgroundColor: 'orange'
+            }]
+        }
+    });
+
+</script>
+
+{% endblock %}

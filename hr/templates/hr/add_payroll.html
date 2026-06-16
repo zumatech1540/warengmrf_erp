@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <h3 class="mb-3">Generate Payroll</h3>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label>Employee</label>
+                    <select name="employee" class="form-select" required>
+                        {% for e in employees %}
+                        <option value="{{ e.id }}">
+                            {{ e.employee_number }} - {{ e.first_name }} {{ e.last_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label>Payroll Month</label>
+                    <input type="text" name="payroll_month" class="form-control" placeholder="e.g. June 2026" required>
+                </div>
+
+                <div class="mb-3">
+                    <label>Basic Salary</label>
+                    <input type="number" name="basic_salary" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label>Allowances</label>
+                    <input type="number" name="allowances" class="form-control" value="0">
+                </div>
+
+                <div class="mb-3">
+                    <label>Deductions</label>
+                    <input type="number" name="deductions" class="form-control" value="0">
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Save Payroll
+                </button>
+
+                <a href="{% url 'payroll_list' %}" class="btn btn-secondary">
+                    Cancel
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

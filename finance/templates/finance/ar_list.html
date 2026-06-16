@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between">
+        <h2>Accounts Receivable (AR)</h2>
+        <a href="{% url 'add_ar' %}" class="btn btn-success">+ Add AR</a>
+    </div>
+
+    <table class="table table-striped mt-3">
+
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Amount Due</th>
+                <th>Paid</th>
+                <th>Balance</th>
+                <th>Due Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for ar in receivables %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ ar.customer_name }}</td>
+                <td>KES {{ ar.amount_due }}</td>
+                <td>KES {{ ar.amount_paid }}</td>
+                <td>KES {{ ar.balance }}</td>
+                <td>{{ ar.due_date }}</td>
+                <td>
+                    {% if ar.status == "paid" %}
+                        <span class="badge bg-success">Paid</span>
+                    {% elif ar.status == "partial" %}
+                        <span class="badge bg-warning text-dark">Partial</span>
+                    {% else %}
+                        <span class="badge bg-danger">Pending</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center">No records found</td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+<a href="{% url 'finance_dashboard' %}"
+   class="btn btn-outline-primary btn-md shadow-sm px-3">
+    ⬅ Return to Dashboard
+</a>
+</div>
+
+{% endblock %}

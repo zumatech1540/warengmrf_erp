@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2 class="fw-bold">Profit Dashboard</h2>
+    <p class="text-muted">Category performance and profit trends</p>
+
+    <!-- ================= FILTER ================= -->
+    <form method="GET" class="mb-4">
+
+        <div class="row">
+            <div class="col-md-3">
+
+                <select name="period" class="form-select" onchange="this.form.submit()">
+
+                    <option value="today" {% if period == "today" %}selected{% endif %}>Today</option>
+                    <option value="week" {% if period == "week" %}selected{% endif %}>Last 7 Days</option>
+                    <option value="month" {% if period == "month" %}selected{% endif %}>Last 30 Days</option>
+                    <option value="year" {% if period == "year" %}selected{% endif %}>This Year</option>
+
+                </select>
+
+            </div>
+        </div>
+
+    </form>
+
+    <!-- ================= CATEGORY CARDS ================= -->
+    <div class="row">
+
+        {% for key, data in summary.items %}
+        <div class="col-md-4 mb-3">
+
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+
+                    <h5 class="text-uppercase">{{ key }}</h5>
+                    <hr>
+
+                    <h6>Revenue</h6>
+                    <h5 class="text-primary">{{ data.revenue|floatformat:2 }}</h5>
+
+                    <h6>Cost</h6>
+                    <h5 class="text-warning">{{ data.cost|floatformat:2 }}</h5>
+
+                    <h6>Profit</h6>
+                    <h4 class="text-success">{{ data.profit|floatformat:2 }}</h4>
+
+                </div>
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </div>
+
+    <!-- ================= CATEGORY CHART ================= -->
+    <div class="row mt-4">
+
+        <div class="col-md-12">
+            <canvas id="categoryChart"></canvas>
+        </div>
+
+    </div>
+
+    <!-- ================= TREND CHART ================= -->
+    <div class="row mt-5">
+
+        <div class="col-md-12">
+            <h4>Profit Trends</h4>
+            <canvas id="trendChart"></canvas>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= CHART JS ================= -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    // ================= CATEGORY DATA =================
+    const categories = {{ categories|safe }};
+    const revenue = {{ revenue_data|safe }};
+    const cost = {{ cost_data|safe }};
+    const profit = {{ profit_data|safe }};
+
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'bar',
+        data: {
+            labels: categories,
+            datasets: [
+                {
+                    label: 'Revenue',
+                    data: revenue,
+                    backgroundColor: '#3b82f6'
+                },
+                {
+                    label: 'Cost',
+                    data: cost,
+                    backgroundColor: '#f59e0b'
+                },
+                {
+                    label: 'Profit',
+                    data: profit,
+                    backgroundColor: '#10b981'
+                }
+            ]
+        }
+    });
+
+    // ================= TREND DATA =================
+    const dates = {{ dates|safe }};
+    const revenueTrend = {{ revenue_trend|safe }};
+    const costTrend = {{ cost_trend|safe }};
+    const profitTrend = {{ profit_trend|safe }};
+
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [
+                {
+                    label: 'Revenue',
+                    data: revenueTrend,
+                    borderColor: '#3b82f6',
+                    fill: false
+                },
+                {
+                    label: 'Cost',
+                    data: costTrend,
+                    borderColor: '#f59e0b',
+                    fill: false
+                },
+                {
+                    label: 'Profit',
+                    data: profitTrend,
+                    borderColor: '#10b981',
+                    fill: false
+                }
+            ]
+        }
+    });
+
+</script>
+<a href="/inventory/dashboard/" class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+{% endblock %}

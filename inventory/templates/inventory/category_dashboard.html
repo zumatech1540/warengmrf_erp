@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2 class="fw-bold">Inventory Category Analytics</h2>
+    <p class="text-muted">Plastic, Metal, Paper, Organic breakdown</p>
+
+    <!-- ================= CARDS ================= -->
+    <div class="row mt-3">
+
+        {% for key, data in summary.items %}
+        <div class="col-md-3 mb-3">
+
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+
+                    <h5 class="text-uppercase">{{ key }}</h5>
+                    <hr>
+
+                    <h6>Stock</h6>
+                    <h4 class="text-primary">{{ data.stock }}</h4>
+
+                    <h6>Value</h6>
+                    <h5 class="text-success">{{ data.value }}</h5>
+
+                    <h6>Items</h6>
+                    <span class="badge bg-dark">{{ data.count }}</span>
+
+                </div>
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </div>
+
+    <!-- ================= CHARTS ================= -->
+    <div class="row mt-5">
+
+        <!-- PIE CHART -->
+        <div class="col-md-6">
+            <canvas id="stockChart"></canvas>
+        </div>
+
+        <!-- BAR CHART -->
+        <div class="col-md-6">
+            <canvas id="valueChart"></canvas>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= CHART.JS ================= -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    const categories = {{ categories|safe }};
+    const stockData = {{ stock_data|safe }};
+    const valueData = {{ value_data|safe }};
+
+    // ================= PIE CHART (STOCK) =================
+    new Chart(document.getElementById('stockChart'), {
+        type: 'pie',
+        data: {
+            labels: categories,
+            datasets: [{
+                label: 'Stock Distribution',
+                data: stockData,
+                backgroundColor: [
+                    '#3b82f6',
+                    '#10b981',
+                    '#f59e0b',
+                    '#ef4444',
+                    '#8b5cf6'
+                ]
+            }]
+        }
+    });
+
+    // ================= BAR CHART (VALUE) =================
+    new Chart(document.getElementById('valueChart'), {
+        type: 'bar',
+        data: {
+            labels: categories,
+            datasets: [{
+                label: 'Inventory Value',
+                data: valueData,
+                backgroundColor: '#3b82f6'
+            }]
+        }
+    });
+
+</script>
+<a href="/inventory/dashboard/" class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+{% endblock %}

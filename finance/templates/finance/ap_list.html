@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between">
+        <h2>Accounts Payable (AP)</h2>
+        <a href="{% url 'add_ap' %}" class="btn btn-danger">+ Add AP</a>
+    </div>
+
+    <table class="table table-striped mt-3">
+
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Supplier</th>
+                <th>Amount Due</th>
+                <th>Paid</th>
+                <th>Balance</th>
+                <th>Due Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for ap in payables %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ ap.supplier_name }}</td>
+                <td>KES {{ ap.amount_due }}</td>
+                <td>KES {{ ap.amount_paid }}</td>
+                <td>KES {{ ap.balance }}</td>
+                <td>{{ ap.due_date }}</td>
+                <td>
+                    {% if ap.status == "paid" %}
+                        <span class="badge bg-success">Paid</span>
+                    {% elif ap.status == "partial" %}
+                        <span class="badge bg-warning text-dark">Partial</span>
+                    {% else %}
+                        <span class="badge bg-danger">Pending</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center">No records found</td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+<a href="{% url 'finance_dashboard' %}"
+   class="btn btn-outline-primary btn-md shadow-sm px-3">
+    ⬅ Return to Dashboard
+</a>
+</div>
+
+{% endblock %}

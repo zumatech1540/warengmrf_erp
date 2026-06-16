@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2 class="fw-bold">Accounts Receivable Dashboard</h2>
+    <p class="text-muted">Overview of customer outstanding balances</p>
+
+    <!-- ================= STATS ================= -->
+    <div class="row mt-4">
+
+        <div class="col-md-3">
+            <div class="card bg-primary text-white p-3">
+                <h5>Total AR</h5>
+                <h3>{{ total_ar }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-dark text-white p-3">
+                <h5>Invoices</h5>
+                <h3>{{ total_invoices }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card bg-success text-white p-3">
+                <h5>Paid</h5>
+                <h3>{{ paid }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card bg-warning text-dark p-3">
+                <h5>Partial</h5>
+                <h3>{{ partial }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card bg-danger text-white p-3">
+                <h5>Unpaid</h5>
+                <h3>{{ unpaid }}</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= TABLE ================= -->
+    <div class="card mt-4 shadow-sm">
+
+        <div class="card-body">
+
+            <h5 class="mb-3">Invoice List</h5>
+
+            <div class="table-responsive">
+
+                <table class="table table-hover">
+
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Invoice</th>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Paid</th>
+                            <th>Balance</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for ar in ars %}
+
+                        <tr>
+                            <td>{{ ar.invoice_number }}</td>
+                            <td>{{ ar.customer }}</td>
+                            <td>{{ ar.total_amount }}</td>
+                            <td>{{ ar.amount_paid }}</td>
+                            <td class="fw-bold text-danger">{{ ar.balance }}</td>
+
+                            <td>
+                                {% if ar.status == "paid" %}
+                                    <span class="badge bg-success">Paid</span>
+                                {% elif ar.status == "partial" %}
+                                    <span class="badge bg-warning text-dark">Partial</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Unpaid</span>
+                                {% endif %}
+                            </td>
+
+                        </tr>
+
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">
+                                No invoices found
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<a href="/inventory/dashboard/" class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+{% endblock %}

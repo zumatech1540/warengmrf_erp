@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold">➕ Add Employee</h2>
+        <a href="{% url 'employee_list' %}" class="btn btn-outline-dark">Back</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label>First Name</label>
+                        <input type="text" name="first_name" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Last Name</label>
+                        <input type="text" name="last_name" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Employee Number</label>
+                        <input type="text" name="employee_number" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Phone</label>
+                        <input type="text" name="phone" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Email</label>
+                        <input type="email" name="email" class="form-control">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Position</label>
+                        <input type="text" name="position" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Department ID</label>
+                        <input type="number" name="department" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Hire Date</label>
+                        <input type="date" name="hire_date" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Basic Salary</label>
+                        <input type="number" name="basic_salary" class="form-control" step="0.01">
+                    </div>
+
+                    <div class="col-12">
+                        <label>Address</label>
+                        <textarea name="address" class="form-control"></textarea>
+                    </div>
+
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">
+                    Save Employee
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="card shadow p-4">
+
+        <h2 class="text-center">INVOICE</h2>
+        <hr>
+
+        <p><strong>Invoice No:</strong> INV-{{ sale.id }}</p>
+        <p><strong>Customer:</strong> {{ sale.customer.company_name }}</p>
+        <p><strong>Date:</strong> {{ sale.created_at }}</p>
+
+        <hr>
+
+        <table class="table table-bordered">
+
+            <tr>
+                <th>Item</th>
+                <td>{{ sale.item.name }}</td>
+            </tr>
+
+            <tr>
+                <th>Quantity</th>
+                <td>{{ sale.quantity }}</td>
+            </tr>
+
+            <tr>
+                <th>Unit Price</th>
+                <td>{{ sale.unit_price }}</td>
+            </tr>
+
+            <tr>
+                <th>Total</th>
+                <td><b>{{ sale.total_amount }}</b></td>
+            </tr>
+
+        </table>
+
+        <button onclick="window.print()" class="btn btn-primary">
+            Print Invoice
+        </button>
+
+    </div>
+
+</div>
+
+{% endblock %}

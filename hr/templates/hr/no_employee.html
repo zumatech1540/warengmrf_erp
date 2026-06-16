@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-7">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body text-center p-5">
+
+                    <!-- ICON -->
+                    <div class="mb-3">
+                        <i class="fa fa-user-slash fa-4x text-danger"></i>
+                    </div>
+
+                    <!-- TITLE -->
+                    <h3 class="fw-bold text-danger">
+                        Employee Profile Not Found
+                    </h3>
+
+                    <p class="text-muted mt-3">
+                        Your account is not linked to an Employee record in the HR system.
+                        Please contact the HR department or administrator to activate your profile.
+                    </p>
+
+                    <hr>
+
+                    <!-- INFO BOX -->
+                    <div class="alert alert-warning text-start">
+                        <strong>Possible Reasons:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>You are a newly created user</li>
+                            <li>HR has not assigned your employee profile</li>
+                            <li>Your account is not activated in HR module</li>
+                        </ul>
+                    </div>
+
+                    <!-- ACTION BUTTONS -->
+                    <div class="mt-4">
+
+                        <a href="{% url 'logout' %}" class="btn btn-outline-dark me-2">
+                            Logout
+                        </a>
+
+                        <a href="/dashboard/" class="btn btn-primary">
+                            Go to Dashboard
+                        </a>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

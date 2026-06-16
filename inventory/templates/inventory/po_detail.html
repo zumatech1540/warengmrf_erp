@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>PO: {{ po.po_number }}</h2>
+
+    <p><b>Supplier:</b> {{ po.supplier.company_name }}</p>
+    <p><b>Status:</b> {{ po.status }}</p>
+
+    <hr>
+
+    <h4>Items</h4>
+
+    <table class="table table-bordered">
+
+        <tr>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Unit Price</th>
+            <th>Total</th>
+        </tr>
+
+        {% for i in items %}
+        <tr>
+            <td>{{ i.item.name }}</td>
+            <td>{{ i.quantity }}</td>
+            <td>{{ i.unit_price }}</td>
+            <td>{{ i.total }}</td>
+        </tr>
+        {% endfor %}
+
+    </table>
+
+    {% if po.status != "received" %}
+    <a href="{% url 'receive_po' po.id %}" class="btn btn-success">
+        Mark as Received (Stock In)
+    </a>
+    {% endif %}
+
+</div>
+<a href="/inventory/dashboard/" class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between mb-3">
+        <h2 class="fw-bold">✏️ Edit Employee</h2>
+        <a href="{% url 'employee_list' %}" class="btn btn-outline-dark">Back</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <input type="text" name="first_name" value="{{ employee.first_name }}" class="form-control">
+                    </div>
+
+                    <div class="col-md-6">
+                        <input type="text" name="last_name" value="{{ employee.last_name }}" class="form-control">
+                    </div>
+
+                    <div class="col-md-6">
+                        <input type="text" name="phone" value="{{ employee.phone }}" class="form-control">
+                    </div>
+
+                    <div class="col-md-6">
+                        <input type="text" name="position" value="{{ employee.position }}" class="form-control">
+                    </div>
+
+                    <div class="col-md-6">
+                        <input type="number" name="basic_salary" value="{{ employee.basic_salary }}" class="form-control">
+                    </div>
+
+                    <div class="col-md-6">
+                        <select name="status" class="form-control">
+                            <option value="active" {% if employee.status == "active" %}selected{% endif %}>Active</option>
+                            <option value="inactive" {% if employee.status == "inactive" %}selected{% endif %}>Inactive</option>
+                            <option value="terminated" {% if employee.status == "terminated" %}selected{% endif %}>Terminated</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <button class="btn btn-success mt-3">Update Employee</button>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

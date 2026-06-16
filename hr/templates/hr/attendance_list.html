@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- ================= HEADER ================= -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <div>
+            <h2 class="fw-bold">🕒 Attendance System</h2>
+            <p class="text-muted">Clock in and clock out employee attendance</p>
+        </div>
+
+    </div>
+
+    <!-- ================= TODAY CLOCK STATUS ================= -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+            <h5>Today Status</h5>
+
+            <div class="row">
+
+                <div class="col-md-4">
+                    <div class="p-3 bg-primary text-white rounded">
+                        <h6>Clock In Time</h6>
+                        <h4>
+                            {% if today_attendance and today_attendance.clock_in %}
+                                {{ today_attendance.clock_in }}
+                            {% else %}
+                                Not Clocked In
+                            {% endif %}
+                        </h4>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="p-3 bg-success text-white rounded">
+                        <h6>Clock Out Time</h6>
+                        <h4>
+                            {% if today_attendance and today_attendance.clock_out %}
+                                {{ today_attendance.clock_out }}
+                            {% else %}
+                                Not Clocked Out
+                            {% endif %}
+                        </h4>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="p-3 bg-dark text-white rounded text-center">
+
+                        {% if not today_attendance or not today_attendance.clock_in %}
+                            <a href="{% url 'clock_in' %}" class="btn btn-light w-100">
+                                🟢 Clock In
+                            </a>
+
+                        {% elif today_attendance and not today_attendance.clock_out %}
+                            <a href="{% url 'clock_out' %}" class="btn btn-warning w-100">
+                                🔴 Clock Out
+                            </a>
+
+                        {% else %}
+                            <button class="btn btn-secondary w-100" disabled>
+                                Completed Today
+                            </button>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= ATTENDANCE HISTORY ================= -->
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <h5 class="mb-3">📋 Attendance History</h5>
+
+            <div class="table-responsive">
+
+                <table class="table table-hover">
+
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Employee</th>
+                            <th>Date</th>
+                            <th>Clock In</th>
+                            <th>Clock Out</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for att in attendance %}
+
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ att.employee.first_name }} {{ att.employee.last_name }}</td>
+                            <td>{{ att.date }}</td>
+                            <td>{{ att.clock_in|default:"-" }}</td>
+                            <td>{{ att.clock_out|default:"-" }}</td>
+
+                            <td>
+                                {% if att.clock_in and att.clock_out %}
+                                    <span class="badge bg-success">Complete</span>
+                                {% elif att.clock_in %}
+                                    <span class="badge bg-warning">In Progress</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Missing</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">
+                                No attendance records found
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

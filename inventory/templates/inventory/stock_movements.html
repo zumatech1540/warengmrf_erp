@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>📦 Stock Movements</h2>
+
+    <table class="table table-bordered mt-3">
+
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Type</th>
+                <th>Quantity</th>
+                <th>Reason</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for m in movements %}
+            <tr>
+                <td>{{ m.item.name }}</td>
+                <td>{{ m.movement_type }}</td>
+                <td>{{ m.quantity }}</td>
+                <td>{{ m.reason }}</td>
+                <td>{{ m.created_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}
