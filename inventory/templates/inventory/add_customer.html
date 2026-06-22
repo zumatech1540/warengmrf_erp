@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Customer - Naiberi ERP</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f6f9; padding: 40px; }
+        .box { max-width: 550px; background: white; margin: 0 auto; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        h2 { color: #2c3e50; margin-top: 0; border-bottom: 2px solid #f2f4f8; padding-bottom: 10px; }
+        .group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #475569; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; }
+        .btn { background: #3b82f6; color: white; border: none; padding: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; margin-bottom: 10px; }
+        .btn:hover { background: #2563eb; }
+        .back { display: block; text-align: center; margin-top: 15px; color: #64748b; text-decoration: none; font-size: 0.9rem; }
+        .back:hover { color: #1e293b; text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="box">
+    <h2>🤝 Register New Customer</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="group">
+            <label>Company / Customer Name *</label>
+            <input type="text" name="company_name" required placeholder="e.g. Eldoret Recycling Hub">
+        </div>
+        <div class="group">
+            <label>Contact Person</label>
+            <input type="text" name="contact_person" placeholder="Jane Doe">
+        </div>
+        <div class="group">
+            <label>Phone Number *</label>
+            <input type="text" name="phone" required placeholder="07...">
+        </div>
+        <div class="group">
+            <label>Email Address</label>
+            <input type="email" name="email">
+        </div>
+        <div class="group">
+            <label>Physical Address</label>
+            <textarea name="address" rows="3"></textarea>
+        </div>
+
+        <button type="submit" class="btn">Save Customer</button>
+        <a href="{% url 'create_sale' %}" class="back">Cancel and Return</a>
+    </form>
+</div>
+</body>
+</html>

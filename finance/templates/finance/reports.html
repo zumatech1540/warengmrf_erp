@@ -1,0 +1,50 @@
+<h2>📊 Financial Reports</h2>
+
+<h3>💰 Income Statement</h3>
+<div style="margin-bottom: 15px;">
+    <a href="{% url 'export_report_pdf' 'income_statement' %}" class="btn btn-sm btn-dark shadow-sm" style="text-decoration: none; padding: 5px 10px; background: #212529; color: white; border-radius: 4px; font-size: 0.85rem;">
+        📥 Download Income Statement PDF
+    </a>
+</div>
+<p>Revenue: {{ income.revenue }}</p>
+<p>Expenses: {{ income.expenses }}</p>
+<p><b>Profit: {{ income.profit }}</b></p>
+
+<hr>
+
+<h3>📊 Balance Sheet</h3>
+<div style="margin-bottom: 15px;">
+    <a href="{% url 'export_report_pdf' 'balance_sheet' %}" class="btn btn-sm btn-dark shadow-sm" style="text-decoration: none; padding: 5px 10px; background: #212529; color: white; border-radius: 4px; font-size: 0.85rem;">
+        📥 Download Balance Sheet PDF
+    </a>
+</div>
+<p>Assets: {{ balance_sheet.assets }}</p>
+<p>Liabilities: {{ balance_sheet.liabilities }}</p>
+<p>Equity: {{ balance_sheet.equity }}</p>
+<p>Balanced: {{ balance_sheet.check }}</p>
+
+<hr>
+
+<h3>💵 Cash Flow</h3>
+<div style="margin-bottom: 15px;">
+    <a href="{% url 'export_report_pdf' 'cash_flow' %}" class="btn btn-sm btn-dark shadow-sm" style="text-decoration: none; padding: 5px 10px; background: #212529; color: white; border-radius: 4px; font-size: 0.85rem;">
+        📥 Download Cash Flow PDF
+    </a>
+</div>
+<p>Cash In: {{ cash_flow.cash_in }}</p>
+<p>Cash Out: {{ cash_flow.cash_out }}</p>
+<p>Net: {{ cash_flow.net_cash }}</p>
+
+<hr>
+
+<h3>📒 Trial Balance</h3>
+<div style="margin-bottom: 15px;">
+    <a href="{% url 'export_report_pdf' 'trial_balance' %}" class="btn btn-sm btn-dark shadow-sm" style="text-decoration: none; padding: 5px 10px; background: #212529; color: white; border-radius: 4px; font-size: 0.85rem;">
+        📥 Download Trial Balance PDF
+    </a>
+</div>
+{% for account, values in trial_balance.items %}
+    <p>
+        {{ account }} → Dr: {{ values.debit }} | Cr: {{ values.credit }}
+    </p>
+{% endfor %}

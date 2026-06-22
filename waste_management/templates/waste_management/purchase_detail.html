@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="card shadow border-0">
+
+        <div class="card-header bg-dark text-white">
+            <h4 class="mb-0">Purchase Details</h4>
+        </div>
+
+        <div class="card-body">
+
+            <h5 class="mb-3">
+                Supplier: {{ purchase.supplier.company_name }}
+            </h5>
+
+            <hr>
+
+            <p><strong>Category:</strong> {{ purchase.category.name }}</p>
+
+            <p><strong>Quantity:</strong> {{ purchase.quantity }} KG</p>
+
+            <p><strong>Unit Price:</strong> KES {{ purchase.unit_price }}</p>
+
+            <p><strong>Total Amount:</strong> KES {{ purchase.total_amount }}</p>
+
+            <p><strong>Created By:</strong> {{ purchase.created_by }}</p>
+
+            <p><strong>Date:</strong> {{ purchase.created_at }}</p>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

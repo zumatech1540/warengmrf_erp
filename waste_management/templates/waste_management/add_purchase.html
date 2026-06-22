@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="card shadow border-0">
+
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">♻ Record Waste Purchase / Collection</h4>
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label font-weight-bold">
+                            Supplier *
+                        </label>
+                        <select name="supplier" class="form-select" required>
+                            <option value="">
+                                -- Select Supplier --
+                            </option>
+                            {% for supplier in suppliers %}
+                                <option value="{{ supplier.id }}">
+                                    {{ supplier.name }} ({% if supplier.phone %}{{ supplier.phone }}{% else %}No Phone{% endif %})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label font-weight-bold">
+                            Waste Type *
+                        </label>
+                        <select name="category" class="form-select" required>
+                            <option value="">
+                                -- Select Waste Type --
+                            </option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}">
+                                    {{ category.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label font-weight-bold">
+                            Quantity (KG) *
+                        </label>
+                        <input
+                            type="number"
+                            step="0.01"
+                            name="quantity"
+                            class="form-control"
+                            placeholder="0.00"
+                            required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label font-weight-bold">
+                            Unit Price (per KG) *
+                        </label>
+                        <input
+                            type="number"
+                            step="0.01"
+                            name="unit_price"
+                            class="form-control"
+                            placeholder="KES per KG"
+                            required>
+                    </div>
+
+                    <div class="col-md-12 mb-4 mt-2">
+                        <div class="card bg-light border-0 p-3">
+                            <div class="form-check form-switch m-0">
+                                <input 
+                                    class="form-check-input" 
+                                    type="checkbox" 
+                                    name="is_paid_on_delivery" 
+                                    id="is_paid_on_delivery" 
+                                    checked>
+                                <label class="form-check-label font-weight-bold text-success" for="is_paid_on_delivery">
+                                    <strong>Paid Instantly On-Site (Cash / M-Pesa Disbursement)</strong>
+                                </label>
+                            </div>
+                            <small class="text-muted d-block mt-1">
+                                Keep this switched ON if the collector settled this payment immediately. Uncheck this to log it as an unpaid credit debt in the accounting ledgers.
+                            </small>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="mt-2">
+                    <button type="submit" class="btn btn-success px-4">
+                        Save Waste Purchase
+                    </button>
+                    <a href="{% url 'collector_dashboard' %}" class="btn btn-secondary px-4">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

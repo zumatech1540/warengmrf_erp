@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="card shadow border-0">
+
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Supplier List</h4>
+        </div>
+
+        <div class="card-body">
+
+            <a href="{% url 'add_supplier' %}" class="btn btn-success mb-3">
+                ➕ Add Supplier
+            </a>
+
+            <table class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Company Name</th>
+                        <th>Contact Person</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for supplier in suppliers %}
+                    <tr>
+                        <td>{{ supplier.company_name }}</td>
+                        <td>{{ supplier.contact_person }}</td>
+                        <td>{{ supplier.phone }}</td>
+                        <td>{{ supplier.email }}</td>
+                        <td>{{ supplier.address }}</td>
+                        <td>
+                            <span class="badge bg-success">
+                                {{ supplier.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">No suppliers found</td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

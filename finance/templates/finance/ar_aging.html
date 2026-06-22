@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="font-weight-bold text-secondary">🤝 Debtors AR Aging Balance Sheet</h3>
+            <p class="text-muted small mb-0">Breakdown of outstanding client balances distributed across standard 30-day payment risk windows.</p>
+        </div>
+        <a href="{% url 'reports_hub' %}" class="btn btn-outline-secondary btn-sm">⬅️ Back to Hub</a>
+    </div>
+
+    <hr class="mb-4">
+
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-left border-primary p-3 bg-white">
+                <h6 class="text-muted small text-uppercase font-weight-bold">Current (0 - 30 Days)</h6>
+                <h3 class="text-primary font-weight-bold">{{ bucket_0_30|length }} Invoices</h3>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-left border-warning p-3 bg-white">
+                <h6 class="text-muted small text-uppercase font-weight-bold">Overdue (31 - 60 Days)</h6>
+                <h3 class="text-warning font-weight-bold">{{ bucket_31_60|length }} Invoices</h3>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-left border-danger p-3 bg-white">
+                <h6 class="text-muted small text-uppercase font-weight-bold">Late (61 - 90 Days)</h6>
+                <h3 class="text-danger font-weight-bold">{{ bucket_61_90|length }} Invoices</h3>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-left border-dark p-3 bg-white" style="background-color: #f8f9fa;">
+                <h6 class="text-dark small text-uppercase font-weight-bold">Critical (90+ Days)</h6>
+                <h3 class="text-dark font-weight-bold">{{ bucket_90_plus|length }} Invoices</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white font-weight-bold text-secondary">⚠️ Delinquent Accounts Profile (> 60 Days Overdue)</div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Invoice Ref</th>
+                            <th>Customer / Debtor</th>
+                            <th>Pending Balance</th>
+                            <th>Date Issued</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ar in bucket_61_90 %}
+                        <tr class="table-warning">
+                            <td><strong>#{{ ar.id }}</strong></td>
+                            <td>{{ ar.customer.company_name }}</td>
+                            <td class="font-weight-bold text-danger">KES {{ ar.balance|floatformat:2 }}</td>
+                            <td>{{ ar.created_at|date:"Y-m-d" }}</td>
+                        </tr>
+                        {% endfor %}
+
+                        {% for ar in bucket_90_plus %}
+                        <tr class="table-danger">
+                            <td><strong>#{{ ar.id }}</strong></td>
+                            <td>{{ ar.customer.company_name }}</td>
+                            <td class="font-weight-bold text-danger">KES {{ ar.balance|floatformat:2 }}</td>
+                            <td>{{ ar.created_at|date:"Y-m-d" }}</td>
+                        </tr>
+                        {% endfor %}
+
+                        
+                            {% if not bucket_61_90 and not bucket_90_plus %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">No delinquent accounts found.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+                            

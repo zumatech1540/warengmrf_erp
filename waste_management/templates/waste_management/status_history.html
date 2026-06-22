@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow border-0">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Waste Status History</h4>
+        </div>
+        <div class="card-body">
+            {% if history_items %}
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Updated By</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in history_items %}
+                        <tr>
+                            <td>{{ item.created_at|date:"d M Y, H:i" }}</td>
+                            <td>
+                                <span class="badge bg-info">{{ item.status }}</span>
+                            </td>
+                            <td>{{ item.created_by.username }}</td>
+                            <td>{{ item.remarks|default:"-" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">No history records found for this entry.</p>
+            {% endif %}
+            
+            <div class="mt-3">
+                <a href="{% url 'waste_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

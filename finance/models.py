@@ -1,14 +1,14 @@
-from django.db import models
-from core.models import Transaction
-from django.db import models
-from django.utils import timezone
+from django.db import models, transaction
+from django.conf import settings
+from django.utils import timezone  
 from decimal import Decimal
+from django.db.models import Sum
+from core.models import Transaction, Department 
 
-# -------------------------
+# =========================================================
 # INCOME
-# -------------------------
+# =========================================================
 class Income(models.Model):
-
     SOURCE_CHOICES = [
         ('waste_sales', 'Waste Sales'),
         ('recycling', 'Recycling Sales'),
@@ -19,24 +19,47 @@ class Income(models.Model):
     source = models.CharField(max_length=50, choices=SOURCE_CHOICES)
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     description = models.TextField(blank=True)
-    date = models.DateField(auto_now_add=True)
-
-    transaction = models.OneToOneField(
-        Transaction,
+    date = models.DateTimeField(auto_now_add=True)
+    
+    department = models.ForeignKey(
+        'core.Department', 
         on_delete=models.CASCADE,
         null=True,
         blank=True
     )
 
+    transaction = models.OneToOneField(
+        Transaction,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    def save(self, *args, **kwargs):
+        self.amount = Decimal(self.amount or 0)
+
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+
+            if not self.transaction:
+                self.transaction = Transaction.objects.create(
+                    type='income',
+                    description=f"{self.source} - {self.amount}",
+                    amount=self.amount,
+                    created_by=getattr(self, "created_by", None),
+                    department=self.department
+                )
+                super().save(update_fields=['transaction'])
+
     def __str__(self):
         return f"{self.source} - {self.amount}"
 
 
-# -------------------------
-# EXPENSE
-# -------------------------
-class Expense(models.Model):
 
+# =========================================================
+# EXPENSE
+# =========================================================
+class Expense(models.Model):
     CATEGORY_CHOICES = [
         ('fuel', 'Fuel'),
         ('salary', 'Salary'),
@@ -54,22 +77,34 @@ class Expense(models.Model):
 
     transaction = models.OneToOneField(
         Transaction,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True
     )
+
+    def save(self, *args, **kwargs):
+        self.amount = Decimal(self.amount or 0)
+
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+
+            if not self.transaction:
+                self.transaction = Transaction.objects.create(
+                    type='expense',
+                    description=f"{self.category} - {self.amount}",
+                    amount=self.amount,
+                    created_by=getattr(self, "created_by", None)
+                )
+                super().save(update_fields=['transaction'])
 
     def __str__(self):
         return f"{self.category} - {self.amount}"
 
 
-
-
-# =========================
-# ACCOUNTS RECEIVABLE (AR)
-# =========================
+# =========================================================
+# ACCOUNT RECEIVABLE (AR)
+# =========================================================
 class AccountReceivable(models.Model):
-
     customer_name = models.CharField(max_length=200)
     amount_due = models.DecimalField(max_digits=12, decimal_places=2)
     amount_paid = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -78,52 +113,36 @@ class AccountReceivable(models.Model):
 
     STATUS_CHOICES = [
         ('pending', 'Pending'),
-        ('partial', 'Partially Paid'),
+        ('partial', 'Partial'),
         ('paid', 'Paid'),
     ]
 
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='pending'
-    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
-    transaction = models.ForeignKey(
-        Transaction,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
-
-    # -------------------------
-    # ERP CORE LOGIC
-    # -------------------------
-    def get_balance(self):
+    def balance(self):
         return self.amount_due - self.amount_paid
 
-    def update_status(self):
-        balance = self.get_balance()
+    def save(self, *args, **kwargs):
+        self.amount_due = Decimal(self.amount_due or 0)
+        self.amount_paid = Decimal(self.amount_paid or 0)
 
-        if balance <= 0:
+        if self.amount_paid >= self.amount_due:
             self.status = 'paid'
         elif self.amount_paid > 0:
             self.status = 'partial'
         else:
             self.status = 'pending'
 
-    def save(self, *args, **kwargs):
-        self.update_status()
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.customer_name} - {self.amount_due}"
 
 
-# =========================
-# ACCOUNTS PAYABLE (AP)
-# =========================
+# =========================================================
+# ACCOUNT PAYABLE (AP)
+# =========================================================
 class AccountPayable(models.Model):
-
     supplier_name = models.CharField(max_length=200)
     amount_due = models.DecimalField(max_digits=12, decimal_places=2)
     amount_paid = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -132,89 +151,37 @@ class AccountPayable(models.Model):
 
     STATUS_CHOICES = [
         ('pending', 'Pending'),
-        ('partial', 'Partially Paid'),
+        ('partial', 'Partial'),
         ('paid', 'Paid'),
     ]
 
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='pending'
-    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
-    transaction = models.ForeignKey(
-        Transaction,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
-
-    # -------------------------
-    # ERP CORE LOGIC
-    # -------------------------
-    def get_balance(self):
+    def balance(self):
         return self.amount_due - self.amount_paid
 
-    def update_status(self):
-        balance = self.get_balance()
+    def save(self, *args, **kwargs):
+        self.amount_due = Decimal(self.amount_due or 0)
+        self.amount_paid = Decimal(self.amount_paid or 0)
 
-        if balance <= 0:
+        if self.amount_paid >= self.amount_due:
             self.status = 'paid'
         elif self.amount_paid > 0:
             self.status = 'partial'
         else:
             self.status = 'pending'
 
-    def save(self, *args, **kwargs):
-        self.update_status()
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.supplier_name} - {self.amount_due}"
 
 
-# =========================
-# BANK TRANSACTIONS
-# =========================
-class BankTransaction(models.Model):
-    BANK_TYPE = [
-        ('deposit', 'Deposit'),
-        ('withdrawal', 'Withdrawal'),
-        ('transfer', 'Transfer'),
-    ]
-
-    bank_name = models.CharField(max_length=200)
-    transaction_type = models.CharField(max_length=20, choices=BANK_TYPE)
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
-    reference = models.CharField(max_length=200, blank=True)
-    date = models.DateField(auto_now_add=True)
-
-    transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.bank_name} - {self.amount}"
+# =========================================================
+# PAYMENT (CRITICAL FIXED LOGIC)
+# =========================================================
 
 
-# =========================
-# GENERAL LEDGER (GL)
-# =========================
-class GeneralLedger(models.Model):
-
-    ENTRY_TYPE = [
-        ('debit', 'Debit'),
-        ('credit', 'Credit'),
-    ]
-
-    account_name = models.CharField(max_length=200)
-    entry_type = models.CharField(max_length=10, choices=ENTRY_TYPE)
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
-    description = models.TextField(blank=True)
-    date = models.DateField(auto_now_add=True)
-
-    transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.account_name} - {self.entry_type}"
 
 class Payment(models.Model):
 
@@ -225,124 +192,307 @@ class Payment(models.Model):
 
     payment_type = models.CharField(max_length=10, choices=PAYMENT_TYPE)
 
-    ar = models.ForeignKey('AccountReceivable', on_delete=models.CASCADE, null=True, blank=True)
-    ap = models.ForeignKey('AccountPayable', on_delete=models.CASCADE, null=True, blank=True)
+    ar = models.ForeignKey(
+        'AccountReceivable',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE
+    )
+
+    ap = models.ForeignKey(
+        'AccountPayable',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE
+    )
 
     amount = models.DecimalField(max_digits=12, decimal_places=2)
-    method = models.CharField(max_length=50, default='cash')  # cash, bank, mpesa
+    method = models.CharField(max_length=50, default='cash')
     reference = models.CharField(max_length=100, blank=True)
 
     date = models.DateTimeField(default=timezone.now)
 
-    def __str__(self):
-        return f"{self.payment_type} - {self.amount}"
-
-
-class Invoice(models.Model):
-
-    STATUS_CHOICES = [
-        ('draft', 'Draft'),
-        ('issued', 'Issued'),
-        ('paid', 'Paid'),
-        ('partially_paid', 'Partially Paid'),
-        ('overdue', 'Overdue'),
-        ('cancelled', 'Cancelled'),
-    ]
-
-    sales_order = models.OneToOneField(
-        'inventory.SalesOrder',
-        on_delete=models.CASCADE,
-        related_name='invoice'
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
     )
 
-    invoice_number = models.CharField(
-        max_length=50,
-        unique=True
-    )
+    # =========================
+    # VALIDATION
+    # =========================
+    def clean(self):
 
-    customer = models.ForeignKey(
-        'inventory.Customer',
-        on_delete=models.CASCADE
-    )
+        if self.payment_type == 'ar' and not self.ar:
+            raise ValueError("AR payment requires AccountReceivable")
 
-    invoice_date = models.DateTimeField(auto_now_add=True)
+        if self.payment_type == 'ap' and not self.ap:
+            raise ValueError("AP payment requires AccountPayable")
 
-    due_date = models.DateField(null=True, blank=True)
+        if self.ar and self.ap:
+            raise ValueError("Payment cannot be both AR and AP")
 
-    subtotal = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
-        default=0
-    )
+        if Decimal(str(self.amount or 0)) <= 0:
+            raise ValueError("Payment amount must be greater than zero")
 
-    tax = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
-        default=0
-    )
-
-    total_amount = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
-        default=0
-    )
-
-    amount_paid = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
-        default=0
-    )
-
-    balance = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
-        default=0
-    )
-
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='issued'
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    # -------------------------
-    # AUTO CALCULATION
-    # -------------------------
-    def calculate_totals(self):
-
-        self.subtotal = self.sales_order.total_amount
-
-        self.tax = self.subtotal * 0  # change later if VAT needed
-
-        self.total_amount = self.subtotal + self.tax
-
-        self.balance = self.total_amount - self.amount_paid
-
-    # -------------------------
-    # SAVE LOGIC
-    # -------------------------
+    # =========================
+    # SAVE LOGIC (ERP SAFE)
+    # =========================
     def save(self, *args, **kwargs):
 
-        self.calculate_totals()
+        self.amount = Decimal(str(self.amount or 0))
 
-        # update status automatically
-        if self.balance <= 0:
-            self.status = 'paid'
-        elif self.amount_paid > 0:
-            self.status = 'partially_paid'
-        else:
-            self.status = 'issued'
+        with transaction.atomic():
 
-        super().save(*args, **kwargs)
+            is_new = self.pk is None
+
+            # validate BEFORE saving
+            self.full_clean()
+
+            super().save(*args, **kwargs)
+
+            if not is_new:
+                return
+            from finance.services import create_journal
+            # =========================
+            # AR PAYMENT
+            # =========================
+            if self.ar:
+
+                self.ar.amount_paid = Decimal(str(self.ar.amount_paid or 0)) + self.amount
+                self.ar.save()
+
+                create_journal(
+                    reference=f"PAY-AR-{self.id}",
+                    description=f"Customer payment: {self.ar.customer_name}",
+                    debit_account="Cash/Bank",
+                    credit_account="Accounts Receivable",
+                    amount=self.amount,
+                    user=self.created_by
+                )
+
+            # =========================
+            # AP PAYMENT
+            # =========================
+            elif self.ap:
+
+                self.ap.amount_paid = Decimal(str(self.ap.amount_paid or 0)) + self.amount
+                self.ap.save()
+
+                create_journal(
+                    reference=f"PAY-AP-{self.id}",
+                    description=f"Supplier payment: {self.ap.supplier_name}",
+                    debit_account="Accounts Payable",
+                    credit_account="Cash/Bank",
+                    amount=self.amount,
+                    user=self.created_by
+                )
 
     def __str__(self):
-        return self.invoice_number
+        return f"{self.payment_type.upper()} - {self.amount}"
 
+# =========================================================
+# GENERAL LEDGER
+# =========================================================
+class GeneralLedger(models.Model):
+
+    ENTRY_TYPE = [
+        ('debit', 'Debit'),
+        ('credit', 'Credit'),
+    ]
+
+    journal = models.ForeignKey(
+        'JournalEntry',
+        on_delete=models.CASCADE,
+        related_name='ledger_entries',
+        null=True,
+        blank=True
+    )
+
+    account_name = models.CharField(max_length=200)
+
+    entry_type = models.CharField(
+        max_length=10,
+        choices=ENTRY_TYPE
+    )
+
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    description = models.TextField(blank=True)
+
+    date = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    transaction = models.ForeignKey(
+        Transaction,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        ordering = ['-date']
+
+    def __str__(self):
+        return (
+            f"{self.account_name} | "
+            f"{self.entry_type.upper()} | "
+            f"KES {self.amount}"
+        )
+
+# =========================================================
+# INVOICE SEQUENCE (THREAD SAFE FIX)
+# =========================================================
 class InvoiceSequence(models.Model):
     year = models.IntegerField(unique=True)
     last_number = models.IntegerField(default=0)
 
+    @staticmethod
+    def next_number():
+        with transaction.atomic():
+            seq, _ = InvoiceSequence.objects.select_for_update().get_or_create(
+                year=timezone.now().year
+            )
+            seq.last_number += 1
+            seq.save()
+            return seq.last_number
+
     def __str__(self):
         return f"{self.year} - {self.last_number}"
+
+class LedgerEntry(models.Model):
+    ENTRY_TYPES = [
+        ('debit', 'Debit'),
+        ('credit', 'Credit'),
+    ]
+
+    account = models.CharField(max_length=200)
+    entry_type = models.CharField(max_length=10, choices=ENTRY_TYPES)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+
+    description = models.TextField()
+    reference_type = models.CharField(max_length=50)  # waste, payment, sale
+    reference_id = models.PositiveIntegerField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+
+
+class JournalEntry(models.Model):
+
+    reference = models.CharField(
+        max_length=100,
+        unique=True
+    )
+
+    description = models.TextField()
+
+    date = models.DateTimeField(auto_now_add=True)
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+    )
+
+    class Meta:
+        ordering = ['-date']
+
+    # =========================
+    # ERP-GRADE TOTALS
+    # =========================
+    def total_debits(self):
+        return self.lines.filter(entry_type='debit').aggregate(
+            total=Sum('amount')
+        )['total'] or 0
+
+    def total_credits(self):
+        return self.lines.filter(entry_type='credit').aggregate(
+            total=Sum('amount')
+        )['total'] or 0
+
+    def is_balanced(self):
+        return self.total_debits() == self.total_credits()
+
+    def balance_difference(self):
+        return self.total_debits() - self.total_credits()
+
+    def __str__(self):
+        return self.reference
+
+class JournalLine(models.Model):
+
+    ENTRY_TYPE = [
+        ('debit', 'Debit'),
+        ('credit', 'Credit'),
+    ]
+
+    journal = models.ForeignKey(
+        'JournalEntry',
+        related_name='lines',
+        on_delete=models.CASCADE
+    )
+
+    
+    account = models.ForeignKey(
+        'ChartOfAccount',
+        on_delete=models.PROTECT,
+        related_name='journal_lines'
+    )
+
+    entry_type = models.CharField(
+        max_length=10,
+        choices=ENTRY_TYPE
+    )
+
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return f"{self.journal.reference} | {self.account.name} | {self.entry_type} | {self.amount}"
+
+class ChartOfAccount(models.Model):
+
+    ACCOUNT_TYPE = [
+        ('asset', 'Asset'),
+        ('liability', 'Liability'),
+        ('equity', 'Equity'),
+        ('income', 'Income'),
+        ('expense', 'Expense'),
+    ]
+
+    code = models.CharField(max_length=20, unique=True)  # e.g. 1000
+    name = models.CharField(max_length=200)               # Cash, Bank, AR
+    account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPE)
+
+    parent = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name='children'
+    )
+
+    is_active = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.code} - {self.name}"
+
+
+

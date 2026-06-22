@@ -13,6 +13,7 @@ urlpatterns = [
     path('employees/edit/<int:employee_id>/', views.edit_employee, name='edit_employee'),
 
     path('employees/<int:employee_id>/', views.employee_detail, name='employee_detail'),
+    
 
     # ================= ATTENDANCE =================
     path('attendance/', views.attendance_list, name='attendance_list'),
@@ -30,6 +31,7 @@ urlpatterns = [
     # ================= PAYROLL =================
     path('payroll/', views.payroll_list, name='payroll_list'),
     path('payroll/add/', views.add_payroll, name='add_payroll'),
+    path('payroll/<int:payroll_id>/', views.payroll_detail, name='payroll_detail'),
 
     path('payroll/generate/', views.generate_payroll, name='generate_payroll'),
     path('attendance/', views.attendance_list, name='attendance_list'),

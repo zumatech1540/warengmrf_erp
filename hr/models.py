@@ -1,6 +1,7 @@
 from django.db import models
 from core.models import Department
 from django.conf import settings
+from decimal import Decimal
 
 
 
@@ -101,52 +102,55 @@ class LeaveRequest(models.Model):
     def __str__(self):
         return f"{self.employee} - {self.leave_type}"
 
-class Payroll(models.Model):
 
+
+class Payroll(models.Model):
     employee = models.ForeignKey(
-        Employee,
+        'Employee',  # Using a string literal here is a safe Django best-practice
         on_delete=models.CASCADE
     )
-
+    
     payroll_month = models.CharField(max_length=20)
-
+    
     basic_salary = models.DecimalField(
         max_digits=12,
         decimal_places=2
     )
-
+    
     allowances = models.DecimalField(
         max_digits=12,
         decimal_places=2,
         default=0
     )
-
+    
     deductions = models.DecimalField(
         max_digits=12,
         decimal_places=2,
         default=0
     )
-
+    
     net_salary = models.DecimalField(
         max_digits=12,
         decimal_places=2,
         default=0
     )
-
+    
     generated_at = models.DateTimeField(
         auto_now_add=True
     )
 
     def save(self, *args, **kwargs):
-
-        self.net_salary = (
-            self.basic_salary +
-            self.allowances -
-            self.deductions
-        )
-
+        # Safely typecast incoming values to strings, then to Decimals.
+        # This prevents string-concatenation errors when raw POST data skips form validation.
+        basic = Decimal(str(self.basic_salary or 0))
+        allow = Decimal(str(self.allowances or 0))
+        deduct = Decimal(str(self.deductions or 0))
+        
+        # Compute the calculation securely using Decimal arithmetic
+        self.net_salary = basic + allow - deduct
+        
+        # Call the parent save method
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.employee} - {self.payroll_month}"
-

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Attendance - Naiberi ERP</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 600px;
+            background: #ffffff;
+            margin: 0 auto;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+        .employee-info {
+            background-color: #eef2f7;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+        }
+        .employee-info p {
+            margin: 5px 0;
+            font-size: 0.95rem;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+        select, input[type="time"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        textarea {
+            resize: vertical;
+            height: 80px;
+        }
+        .btn-submit {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+        .btn-submit:hover {
+            background-color: #27ae60;
+        }
+        .btn-cancel {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #7f8c8d;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .btn-cancel:hover {
+            color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Mark Daily Attendance</h2>
+    
+    <div class="employee-info">
+        <p><strong>Employee:</strong> {{ employee.first_name }} {{ employee.last_name }} ({{ employee.employee_code|default:"005" }})</p>
+        <p><strong>Date:</strong> {% now "Y-m-d" %}</p>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="status">Attendance Status</label>
+            <select name="status" id="status" required>
+                <option value="present" {% if attendance.status == 'present' %}selected{% endif %}>Present</option>
+                <option value="absent" {% if attendance.status == 'absent' %}selected{% endif %}>Absent</option>
+                <option value="late" {% if attendance.status == 'late' %}selected{% endif %}>Late</option>
+                <option value="leave" {% if attendance.status == 'leave' %}selected{% endif %}>On Leave</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="notes">Notes / Remarks (Optional)</label>
+            <textarea name="notes" id="notes" placeholder="Reasons for absence, late arrival details, etc.">{{ attendance.notes }}</textarea>
+        </div>
+
+        <button type="submit" class="btn-submit">Save Attendance Record</button>
+        <a href="/hr/employees/{{ employee.id }}/" class="btn-cancel">Cancel and Go Back</a>
+    </form>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+{% extends "dashboard/base.html" %}
+{% block content %}
+
+<h2>ERP Control Center (Super Admin)</h2>
+
+<div class="row mt-4">
+
+    <div class="col-md-3">
+        <a href="/waste/" class="btn btn-success w-100 p-4">
+            Waste Management
+        </a>
+    </div>
+
+    <div class="col-md-3">
+        <a href="/inventory/" class="btn btn-primary w-100 p-4">
+            Inventory
+        </a>
+    </div>
+
+    <div class="col-md-3">
+        <a href="/finance/" class="btn btn-warning w-100 p-4">
+            Finance
+        </a>
+    </div>
+
+    <div class="col-md-3">
+        <a href="/hr/" class="btn btn-info w-100 p-4">
+            HR
+        </a>
+    </div>
+
+</div>
+
+<hr>
+
+<h4>System Overview</h4>
+
+<p>Welcome, {{ user.username }}. You have full system access.</p>
+
+{% endblock %}

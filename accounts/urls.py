@@ -1,10 +1,15 @@
 from django.urls import path
-from django.contrib.auth.views import LogoutView
-from .views import login_view, logout_view, dashboard_redirect
+from . import views
 
 urlpatterns = [
-    path('', login_view, name='login'),
-    path('login/', login_view, name='login'),
-    path('logout/', logout_view, name='logout'),
-    path('dashboard-redirect/', dashboard_redirect, name='dashboard_redirect'),
+    path('', views.login_view, name='login'),
+    path('login/', views.login_view, name='login'),
+
+    path('logout/', views.logout_view, name='logout'),
+
+    # ERP redirect engine (ONLY ONE)
+    path('redirect/', views.dashboard_redirect, name='dashboard_redirect'),
+
+    # default dashboard
+    path('dashboard/', views.dashboard, name='dashboard'),
 ]

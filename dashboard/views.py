@@ -10,7 +10,24 @@ from django.db.models import Sum
 from inventory.models import Item, StockMovement
 from waste_management.models import WasteIntake
 from sales.models import Sale
+from accounts.decorators import role_required
+from django.contrib.auth.decorators import login_required
 
+
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+
+
+@login_required
+def erp_home(request):
+
+    # ONLY SUPER ADMIN SHOULD ACCESS ERP HOME
+    if request.user.role != "super_admin":
+        return redirect("dashboard")
+
+    return render(request, "dashboard/erp_home.html")
+    ...
 @login_required
 def dashboard_home(request):
 

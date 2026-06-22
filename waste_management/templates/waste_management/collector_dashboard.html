@@ -1,0 +1,135 @@
+{% extends "dashboard/dashboard.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h3 class="mb-4">👷 Collection Officer Dashboard</h3>
+
+    <!-- ================= KPI CARDS ================= -->
+    <div class="row">
+
+        <div class="col-md-3">
+            <div class="card bg-primary text-white p-3">
+                <h6>Total Waste Collected</h6>
+                <h3>{{ total_waste|default:0 }} kg</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-warning text-white p-3">
+                <h6>Received</h6>
+                <h3>{{ received|default:0 }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-info text-white p-3">
+                <h6>Processing</h6>
+                <h3>{{ processing|default:0 }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-success text-white p-3">
+                <h6>Completed</h6>
+                <h3>{{ completed|default:0 }}</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= PURCHASING SUMMARY ================= -->
+    <div class="row mt-4">
+
+        <div class="col-md-4">
+            <div class="card bg-dark text-white p-3">
+                <h6>Total Waste Purchased</h6>
+                <h3>{{ total_purchases|default:0 }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-danger text-white p-3">
+                <h6>Total Supplier Cost (KES)</h6>
+                <h3>{{ total_paid|default:0 }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-secondary text-white p-3">
+                <h6>Registered Suppliers</h6>
+                <h3>{{ suppliers|default:0 }}</h3>
+            </div>
+        </div>
+
+    </div>
+
+   <div class="mt-4">
+
+        <a href="{% url 'waste_intake' %}" class="btn btn-success">
+            ➕ Add Waste Intake
+        </a>
+
+        <a href="{% url 'waste_list' %}" class="btn btn-dark">
+            📋 View Waste Records
+        </a>
+
+        <a href="{% url 'add_supplier' %}" class="btn btn-primary">
+            👤 Add Supplier
+        </a>
+        <a href="{% url 'supplier_list' %}" class="btn btn-secondary">
+        View Supplier List
+    </a>
+
+       <a href="{% url 'waste_purchase' %}" class="btn btn-warning">🛒 Buy Waste Records</a>
+
+        {% if latest_purchase.id %}
+            <a href="{% url 'download_receipt' latest_purchase.id %}" class="btn btn-info text-white">
+                🧾 Download Last Receipt
+            </a>
+        {% else %}
+            <button class="btn btn-info text-white" disabled title="No recent purchases found">
+                🧾 No Recent Receipt
+            </button>
+        {% endif %}
+
+    </div>
+    <!-- ================= RECENT WASTE ================= -->
+    <div class="mt-4">
+
+        <h5>Recent Waste Entries</h5>
+
+        <table class="table table-bordered table-striped mt-2">
+
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for w in recent %}
+                <tr>
+                    <td>{{ w.category|default:"-" }}</td>
+                    <td>{{ w.quantity|default:0 }} kg</td>
+                    <td>{{ w.status|default:"-" }}</td>
+                    <td>{{ w.created_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">No waste records yet</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

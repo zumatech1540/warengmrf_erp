@@ -1,21 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Wareng ERP</title>
+    <title>Warengmrf ERP</title>
 
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
+        body { margin: 0; font-family: Arial; }
 
-        /* Sidebar */
         .sidebar {
             width: 250px;
             height: 100vh;
@@ -32,33 +25,18 @@
             text-decoration: none;
         }
 
-        .sidebar a:hover {
-            background: #374151;
-        }
+        .sidebar a:hover { background: #374151; }
 
-        /* Main content */
         .main {
             margin-left: 250px;
             padding: 20px;
         }
 
-        /* Navbar */
         .topbar {
             background: #0f172a;
             color: white;
             padding: 10px 20px;
         }
-
-        .card-box {
-            border-radius: 10px;
-            padding: 20px;
-            color: white;
-        }
-
-        .bg1 { background: #3b82f6; }
-        .bg2 { background: #10b981; }
-        .bg3 { background: #f59e0b; }
-        .bg4 { background: #ef4444; }
     </style>
 </head>
 
@@ -69,70 +47,27 @@
     <h4 class="text-center">MRF ERP</h4>
     <hr>
 
-    <!-- DASHBOARD -->
-    <a href="/dashboard/">
-        <i class="fa fa-home"></i> Dashboard
-    </a>
+    <!-- ================= DASHBOARD ROUTING ================= -->
+    
+   <div class="sidebar">
 
-    <!-- 🔥 SUPER ADMIN OVERRIDE -->
-   {% if request.user.role == "super_admin" %}
+    <hr>
 
-    <a href="/waste/">Waste Management</a>
-    <a href="/inventory/">Inventory</a>
-    <a href="/finance/">Finance</a>
-    <a href="/hr/">HR</a>
-    <a href="/reports/">Reports</a>
-    <a href="/notifications/">Notifications</a>
-    <a href="/admin/">User Management</a>
-    <a href="/sales/">
-    <i class="fa fa-shopping-cart"></i>
-    Sales
-</a>
-
-{% else %}
-
-        <!-- ================= WASTE ================= -->
-        {% if request.user.role in "collection_officer operations_manager data_entry_clerk managing_director finance_manager hr_manager inventory_officer" %}
-        <a href="/waste/">
-            <i class="fa fa-recycle"></i> Waste Management
-        </a>
-        {% endif %}
-
-        <!-- ================= INVENTORY ================= -->
-        {% if request.user.role in "inventory_officer operations_manager finance_manager managing_director" %}
-        <a href="/inventory/">
-            <i class="fa fa-box"></i> Inventory
-        </a>
-        {% endif %}
-
-        <!-- ================= FINANCE ================= -->
-        {% if request.user.role in "finance_manager managing_director" %}
-        <a href="/finance/">
-            <i class="fa fa-coins"></i> Finance
-        </a>
-        {% endif %}
-
-        <!-- ================= HR ================= -->
-        {% if request.user.role in "hr_manager finance_manager managing_director" %}
-        <a href="/hr/">
-            <i class="fa fa-users"></i> HR Module
-        </a>
-        {% endif %}
-
-        <!-- ================= REPORTS ================= -->
-        {% if request.user.role in "managing_director finance_manager hr_manager operations_manager inventory_officer collection_officer data_entry_clerk" %}
-        <a href="/reports/">
-            <i class="fa fa-chart-bar"></i> Reports
-        </a>
-        {% endif %}
-
-    {% endif %}
-
-    <!-- NOTIFICATIONS (ALL USERS) -->
-    <a href="/notifications/">
-        <i class="fa fa-bell"></i> Notifications
-    </a>
-
+    <a href="/collector/"><i class="fa fa-tachometer-alt"></i> Collector Dashboard</a>
+    <a href="/waste/"><i class="fa fa-recycle"></i> Waste</a>
+    <a href="/inventory/"><i class="fa fa-box"></i> Inventory</a>
+    <a href="/finance/"><i class="fa fa-coins"></i> Finance</a>
+    <a href="/hr/"><i class="fa fa-users"></i> HR</a>
+    <a href="/sales/"><i class="fa fa-chart-bar"></i> Sales</a>
+    <a href="/reports/"><i class="fa fa-chart-bar"></i> Reports</a>
+    <a href="/admin/"><i class="fa fa-user-cog"></i> Admin Panel</a>
+    
+    <hr>
+    <a href="/logout/"><i class="fa fa-sign-out"></i> Logout</a>
+</div>
+    <!-- ================= SHARED ================= -->
+    
+   
     <hr>
 
     <a href="/logout/">
@@ -140,13 +75,12 @@
     </a>
 
 </div>
-<!-- MAIN -->
+
 <div class="main">
 
-    <!-- TOP BAR -->
     <div class="topbar d-flex justify-content-between">
-        <h5>Wareng ERP System</h5>
-        <div>User: {{ request.user.username }}</div>
+        <h5>Warengmrf ERP System</h5>
+        <div>User: {{ request.user.username }} ({{ request.user.role }})</div>
     </div>
 
     <hr>

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center border-bottom pb-3 mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">🤝 AR Aging Balance Sheet</h2>
+            <p class="text-muted mb-0">Breakdown of outstanding client balances distributed across standard 30-day risk windows.</p>
+        </div>
+        <div class="mt-3 mt-md-0">
+            <a href="{% url 'reports_hub' %}" class="btn btn-outline-secondary btn-sm shadow-sm">
+                ⬅️ Back to Reports Hub
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-xl-3 col-sm-6 mb-4">
+            <div class="card h-100 shadow-sm border-0 border-start border-4 border-success rounded-3 bg-white">
+                <div class="card-body p-3">
+                    <span class="text-muted small text-uppercase fw-semibold d-block mb-1">Current (0–30 Days)</span>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <h2 class="fw-bold text-success mb-0">{{ bucket_0_30|length }}</h2>
+                        <span class="text-muted small">Invoices</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-sm-6 mb-4">
+            <div class="card h-100 shadow-sm border-0 border-start border-4 border-info rounded-3 bg-white">
+                <div class="card-body p-3">
+                    <span class="text-muted small text-uppercase fw-semibold d-block mb-1">Overdue (31–60 Days)</span>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <h2 class="fw-bold text-info mb-0">{{ bucket_31_60|length }}</h2>
+                        <span class="text-muted small">Invoices</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-sm-6 mb-4">
+            <div class="card h-100 shadow-sm border-0 border-start border-4 border-warning rounded-3 bg-white">
+                <div class="card-body p-3">
+                    <span class="text-muted small text-uppercase fw-semibold d-block mb-1">Late (61–90 Days)</span>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <h2 class="fw-bold text-warning mb-0">{{ bucket_61_90|length }}</h2>
+                        <span class="text-muted small">Invoices</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-sm-6 mb-4">
+            <div class="card h-100 shadow-sm border-0 border-start border-4 border-danger rounded-3 bg-white">
+                <div class="card-body p-3">
+                    <span class="text-muted small text-uppercase fw-semibold d-block mb-1">Critical (90+ Days)</span>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <h2 class="fw-bold text-danger mb-0">{{ bucket_90_plus|length }}</h2>
+                        <span class="text-muted small">Invoices</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-header bg-white border-bottom py-3 px-4">
+            <h5 class="fw-bold text-secondary mb-1">⚠️ Collections & Risk Profiles</h5>
+            <p class="text-muted small mb-0">Detailed breakdown of customer balances that require active collection follow-up.</p>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Invoice Reference</th>
+                            <th>Customer Account</th>
+                            <th>Risk Bracket</th>
+                            <th>Outstanding Balance</th>
+                            <th class="pe-4">Issue Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ar in bucket_61_90 %}
+                        <tr class="table-warning bg-opacity-25">
+                            <td class="ps-4 fw-semibold">#{{ ar.id }}</td>
+                            <td>{{ ar.customer.company_name|default:"Individual Debtor" }}</td>
+                            <td><span class="badge bg-warning text-dark px-2 py-1">61–90 Days Late</span></td>
+                            <td class="fw-bold text-danger">KES {{ ar.balance|floatformat:2 }}</td>
+                            <td class="pe-4 text-muted">{{ ar.created_at|date:"Y-m-d" }}</td>
+                        </tr>
+                        {% endfor %}
+
+                        {% for ar in bucket_90_plus %}
+                        <tr class="table-danger bg-opacity-25">
+                            <td class="ps-4 fw-semibold">#{{ ar.id }}</td>
+                            <td>{{ ar.customer.company_name|default:"Individual Debtor" }}</td>
+                            <td><span class="badge bg-danger px-2 py-1">90+ Days Critical</span></td>
+                            <td class="fw-bold text-danger">KES {{ ar.balance|floatformat:2 }}</td>
+                            <td class="pe-4 text-muted">{{ ar.created_at|date:"Y-m-d" }}</td>
+                        </tr>
+                        {% endfor %}
+
+                        {% if not bucket_61_90 and not bucket_90_plus %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-5">
+                                <span class="fs-5 d-block mb-1">🎉 Excellent Risk Status</span>
+                                <span class="small">No client account balances have exceeded the critical 60-day threshold window right now.</span>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

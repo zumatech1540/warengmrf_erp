@@ -1,42 +1,89 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
 <div class="container-fluid">
 
     <h3 class="mb-4">Sales Dashboard</h3>
 
-    <!-- KPI CARDS -->
-    <div class="row">
-
-        <div class="col-md-4">
-            <div class="card shadow p-3">
-                <h5>Total Sales</h5>
+    <div class="row mb-4">
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card shadow p-3 border-0 bg-white">
+                <h5 class="text-muted small text-uppercase font-weight-bold">Total Sales Orders</h5>
                 <h2>{{ total_sales }}</h2>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card shadow p-3">
-                <h5>Total Revenue</h5>
-                <h2 class="text-success">
-                    KES {{ total_revenue }}
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card shadow p-3 border-0 bg-white">
+                <h5 class="text-muted small text-uppercase font-weight-bold">Total Revenue</h5>
+                <h2 class="text-success font-weight-bold">
+                    KES {{ total_revenue|floatformat:2 }}
                 </h2>
             </div>
         </div>
+    </div>
 
+    <div class="mb-4">
+        <a href="{% url 'create_sale' %}" class="btn btn-primary mr-2">
+            ➕ Create Sale
+        </a>
+        <a href="{% url 'add_customer' %}" class="btn btn-outline-primary mr-2">
+            🤝 Register Customer
+        </a>
+        <a href="{% url 'sale_list' %}" class="btn btn-secondary">
+            📋 View All Sales
+        </a>
     </div>
 
     <hr>
 
-    <a href="{% url 'create_sale' %}" class="btn btn-primary">
-        + Create Sale
-    </a>
-
-    <a href="{% url 'sale_list' %}" class="btn btn-secondary">
-        View All Sales
-    </a>
+    <div class="card shadow border-0 mt-4">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0 text-secondary font-weight-bold">Recent Material Sales Logs</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 values-table">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer / Buyer</th>
+                            <th>Material Item</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total Amount</th>
+                            <th>Date Processed</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in sales %}
+                        <tr>
+                            <td><strong>#{{ sale.id }}</strong></td>
+                            <td>{{ sale.customer.company_name }}</td>
+                            <td>{{ sale.item.name }}</td>
+                            <td>{{ sale.quantity }}</td>
+                            <td>KES {{ sale.unit_price|floatformat:2 }}</td>
+                            <td class="text-success font-weight-bold">KES {{ sale.total_amount|floatformat:2 }}</td>
+                            <td>{{ sale.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                <a href="{% url 'sale_invoice' sale.id %}" class="btn btn-sm btn-info py-0">
+                                    📄 Invoice
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                No sales logs generated this month yet. Click "+ Create Sale" to record one.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
 </div>
-
 {% endblock %}

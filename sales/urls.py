@@ -16,5 +16,6 @@ urlpatterns = [
     ),
     path('list/', views.sale_list, name='sale_list'),
     path('invoice/<int:sale_id>/', views.sale_invoice, name='sale_invoice'),
+    path('customers/add/', views.add_customer, name='add_customer'),
 
 ]

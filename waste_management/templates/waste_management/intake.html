@@ -1,32 +1,154 @@
 {% extends 'base.html' %}
-
 {% block content %}
 
-<h2>Waste Intake Form</h2>
+<div class="container mt-3">
 
-<form method="POST" class="card p-3">
-    {% csrf_token %}
+    <div class="card shadow border-0">
 
-    <div class="mb-3">
-        <label>Category</label>
-        <select name="category" class="form-control" required>
-            {% for c in categories %}
-                <option value="{{ c.id }}">{{ c.name }}</option>
-            {% endfor %}
-        </select>
+        <!-- HEADER -->
+        <div class="card-header bg-success text-white text-center">
+            <h5 class="mb-0">♻ Waste Collection Intake</h5>
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST" enctype="multipart/form-data" id="intakeForm">
+                {% csrf_token %}
+
+                <!-- ========================= -->
+                <!-- WASTE CATEGORY -->
+                <!-- ========================= -->
+                <div class="mb-3">
+                    <label class="form-label">Waste Category</label>
+                    <select name="category" id="categorySelect" class="form-select" required>
+                        <option value="">-- Select Category --</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" data-name="{{ cat.name|lower }}">
+                                {{ cat.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- ========================= -->
+                <!-- WASTE TYPE (FILTERED UI) -->
+                <!-- ========================= -->
+                <div class="mb-3">
+                    <label class="form-label">Waste Type</label>
+                    <select name="waste_type" id="typeSelect" class="form-select" required>
+                        <option value="">-- Select Type --</option>
+
+                        <optgroup label="Plastics" data-group="plastic">
+                            <option value="bottles">Plastic Bottles</option>
+                            <option value="bags">Plastic Bags</option>
+                            <option value="containers">Plastic Containers</option>
+                        </optgroup>
+
+                        <optgroup label="Metals" data-group="metal">
+                            <option value="scrap_iron">Scrap Iron</option>
+                            <option value="aluminium">Aluminium</option>
+                            <option value="copper">Copper</option>
+                        </optgroup>
+
+                        <optgroup label="Paper" data-group="paper">
+                            <option value="carton">Carton</option>
+                            <option value="newspaper">Newspaper</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <!-- ========================= -->
+                <!-- SUPPLIER DROPDOWN -->
+<div class="mb-3">
+    <label class="form-label">Supplier / Customer</label>
+
+    <select name="supplier" class="form-select">
+        <option value="">Walk-in Customer</option>
+
+        {% for supplier in suppliers %}
+            <option value="{{ supplier.id }}">
+                {{ supplier.company_name }}
+                {% if supplier.phone %} - {{ supplier.phone }}{% endif %}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+                <!-- ========================= -->
+                <!-- QUANTITY -->
+                <!-- ========================= -->
+                <div class="mb-3">
+                    <label class="form-label">Quantity (KG)</label>
+                    <input type="number" step="0.01" name="quantity" class="form-control" required>
+                </div>
+
+                <!-- ========================= -->
+                <!-- PHOTO CAPTURE (MOBILE PWA READY) -->
+                <!-- ========================= -->
+                <div class="mb-3">
+                    <label class="form-label">Capture Photo</label>
+                    <input type="file"
+                           name="photo"
+                           accept="image/*"
+                           capture="environment"
+                           class="form-control">
+                    <small class="text-muted">Take photo as proof of collection</small>
+                </div>
+
+                <!-- ========================= -->
+                <!-- SUBMIT -->
+                <!-- ========================= -->
+                <button type="submit" class="btn btn-success w-100">
+                    Save Intake
+                </button>
+
+            </form>
+
+        </div>
     </div>
+</div>
 
-    <div class="mb-3">
-        <label>Quantity</label>
-        <input type="number" step="0.01" name="quantity" class="form-control" required>
-    </div>
+<!-- ========================= -->
+<!-- JAVASCRIPT FILTER LOGIC -->
+<!-- ========================= -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
 
-    <div class="mb-3">
-        <label>Source</label>
-        <input type="text" name="source" class="form-control" required>
-    </div>
+    const categorySelect = document.getElementById("categorySelect");
+    const typeSelect = document.getElementById("typeSelect");
+    const groups = typeSelect.querySelectorAll("optgroup");
 
-    <button class="btn btn-success">Save Waste Intake</button>
-</form>
+    categorySelect.addEventListener("change", function () {
+
+        const selected = categorySelect.options[categorySelect.selectedIndex];
+        const name = selected.getAttribute("data-name") || "";
+
+        // reset
+        typeSelect.value = "";
+
+        groups.forEach(group => {
+
+            const groupName = group.getAttribute("data-group");
+
+            if (name.includes(groupName)) {
+                group.style.display = "";
+                group.querySelectorAll("option").forEach(o => o.disabled = false);
+            } else {
+                group.style.display = "none";
+                group.querySelectorAll("option").forEach(o => o.disabled = true);
+            }
+        });
+    });
+
+    // Offline warning (PWA foundation)
+    document.getElementById("intakeForm").addEventListener("submit", function (e) {
+        if (!navigator.onLine) {
+            e.preventDefault();
+            alert("You are offline. Data will be saved later (PWA sync needed).");
+        }
+    });
+
+});
+</script>
 
 {% endblock %}

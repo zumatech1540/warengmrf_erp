@@ -2,29 +2,77 @@
 
 {% block content %}
 
-<h2>Add Inventory Item</h2>
+<div class="container mt-4">
 
-<form method="POST">
-    {% csrf_token %}
+    <div class="card shadow border-0">
 
-    <div class="mb-3">
-        <label>Name</label>
-        <input type="text" name="name" class="form-control" required>
+        <div class="card-header bg-dark text-white">
+            <h4 class="mb-0">➕ Add Inventory Item</h4>
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <!-- ITEM NAME -->
+                <div class="mb-3">
+                    <label class="form-label">Item Name</label>
+                    <input type="text" name="name" class="form-control" required>
+                </div>
+
+                <!-- DESCRIPTION -->
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control" rows="3"></textarea>
+                </div>
+
+                <!-- UNIT -->
+                <div class="mb-3">
+                    <label class="form-label">Unit</label>
+                    <input type="text" name="unit" class="form-control" placeholder="kg, pcs, bags">
+                </div>
+
+                <!-- ========================= -->
+                <!-- SUPPLIER DROPDOWN FIXED -->
+                <!-- ========================= -->
+                <div class="mb-3">
+                    <label class="form-label">Supplier</label>
+
+                    <select name="supplier" class="form-select" required>
+                        <option value="">-- Select Supplier --</option>
+
+                        {% for supplier in suppliers %}
+                            <option value="{{ supplier.id }}">
+                                {{ supplier.company_name }} 
+                                {% if supplier.phone %}- {{ supplier.phone }}{% endif %}
+                            </option>
+                        {% empty %}
+                            <option disabled>No suppliers available</option>
+                        {% endfor %}
+                    </select>
+
+                    <small class="text-muted">
+                        Supplier not found?
+                        <a href="{% url 'add_supplier' %}">Add new supplier</a>
+                    </small>
+                </div>
+
+                <!-- SUBMIT -->
+                <button type="submit" class="btn btn-success">
+                    Save Item
+                </button>
+
+                <a href="/inventory/dashboard/" class="btn btn-secondary">
+                    Cancel
+                </a>
+
+            </form>
+
+        </div>
+
     </div>
 
-    <div class="mb-3">
-        <label>Description</label>
-        <textarea name="description" class="form-control"></textarea>
-    </div>
+</div>
 
-    <div class="mb-3">
-        <label>Unit</label>
-        <input type="text" name="unit" class="form-control" placeholder="kg, pcs, bags">
-    </div>
-
-    <button class="btn btn-success">Save Item</button>
-</form>
-<a href="/inventory/dashboard/" class="btn btn-secondary">
-                Back to Dashboard
-            </a>
 {% endblock %}

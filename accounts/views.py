@@ -45,31 +45,36 @@ def dashboard_redirect(request):
 
     role = request.user.role
 
-    routing = {
-        "super_admin": "/dashboard/",
+    print("REDIRECT ROLE:", role)
 
-        "managing_director": "/dashboard/executive/",
+    if role == "super_admin":
+        return redirect("/dashboard/")
 
-        "operations_manager": "/dashboard/operations/",
+    if role == "collection":
+        return redirect("/waste/collector/")
 
-        "finance_manager": "/finance/",
+    if role == "finance":
+        return redirect("/finance/")
 
-        "hr_manager": "/hr/",
+    if role == "inventory":
+        return redirect("/inventory/")
 
-        "inventory_officer": "/inventory/",
+    if role == "hr":
+        return redirect("/hr/")
 
-        "collection_officer": "/waste/",
+    if role == "manager":
+        return redirect("/dashboard/manager/")
 
-        "data_entry_clerk": "/dashboard/data-entry/",
-
-        "viewer": "/dashboard/",  
-    }
-
-    return redirect(routing.get(role, "/dashboard/"))
-
+    return redirect("/dashboard/")
 # -------------------------
 # DEFAULT DASHBOARD
 # -------------------------
 @login_required
 def dashboard(request):
-    return render(request, 'dashboard.html')
+
+    print("ROLE:", request.user.role)  # DEBUG LINE
+
+    if request.user.role != "super_admin":
+        return redirect("dashboard_redirect")
+
+    return render(request, "dashboard/erp_home.html")
