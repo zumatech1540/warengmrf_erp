@@ -1,1 +1,1 @@
-web: gunicorn naiberi_erp.wsgi:application
+web: gunicorn Warengmrf.wsgi:application
