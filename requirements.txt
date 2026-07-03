@@ -1,6 +1,7 @@
 arabic-reshaper==3.0.1
 asgiref==3.11.1
 asn1crypto==1.5.1
+brotli==1.2.0
 certifi==2026.5.20
 cffi==2.0.0
 charset-normalizer==3.4.7
@@ -8,6 +9,11 @@ cryptography==48.0.0
 cssselect2==0.9.0
 dj-database-url==3.1.2
 Django==5.1.6
+django-axes==8.3.1
+django-jazzmin==3.0.5
+django-otp==1.7.0
+django-session-security==2.6.8
+fonttools==4.63.0
 freetype-py==2.5.1
 gunicorn==26.0.0
 html5lib==1.1
@@ -19,9 +25,11 @@ pillow==12.2.0
 psycopg2-binary==2.9.12
 pycairo==1.29.0
 pycparser==3.0
+pydyf==0.12.1
 pyHanko==0.35.1
 pyhanko-certvalidator==0.31.1
 pypdf==6.13.1
+pyphen==0.17.2
 python-bidi==0.6.10
 PyYAML==6.0.3
 reportlab==4.5.1
@@ -31,10 +39,13 @@ six==1.17.0
 sqlparse==0.5.5
 svglib==1.6.0
 tinycss2==1.5.1
+tinyhtml5==2.1.0
 tzdata==2026.2
 tzlocal==5.3.1
 uritools==6.1.2
 urllib3==2.7.0
+weasyprint==69.0
 webencodings==0.5.1
 whitenoise==6.12.0
 xhtml2pdf==0.2.17
+zopfli==0.4.3
