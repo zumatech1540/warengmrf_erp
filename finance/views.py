@@ -11,6 +11,7 @@ from accounts.decorators import role_required
 from decimal import Decimal, InvalidOperation
 from django.contrib import messages
 from .models import AccountPayable
+from core.models import AuditLog
 from .utils import generate_receipt_number 
 from .models import Department
 
@@ -339,6 +340,23 @@ def invoice_pdf_view(request, ar_id):
     from .utils import generate_invoice_pdf
     invoice = get_object_or_404(AccountReceivable, id=ar_id)
     return generate_invoice_pdf(invoice)
+@login_required
+def invoice_list(request):
+
+    from sales.models import Sale
+
+    invoices = Sale.objects.select_related(
+        'customer',
+        'item'
+    ).order_by('-created_at')
+
+    return render(
+        request,
+        'finance/invoice_list.html',
+        {
+            'invoices': invoices
+        }
+    )
 
 @login_required
 def ledger_list(request):
@@ -377,3 +395,145 @@ def export_report_pdf(request, report_type):
         return redirect('finance_dashboard') # Or whatever your core dashboard name is
 
     return generate_financial_report_pdf(report_type, data)
+
+@login_required
+def receive_customer_payment(request, sale_id):
+
+    sale = get_object_or_404(
+        Sale,
+        id=sale_id
+    )
+
+    ar = AccountReceivable.objects.filter(
+        description=f"Sale #{sale.id}"
+    ).first()
+
+    if request.method == "POST":
+
+        amount = Decimal(
+            request.POST.get('amount')
+        )
+
+        method = request.POST.get(
+            'payment_method'
+        )
+
+        reference = request.POST.get(
+            'reference'
+        )
+
+        payment = CustomerPayment.objects.create(
+            sale=sale,
+            amount=amount,
+            payment_method=method,
+            reference=reference,
+            received_by=request.user
+        )
+
+        if ar:
+
+            ar.amount_paid += amount
+            ar.save()
+
+            if ar.balance() <= 0:
+
+                sale.status = 'paid'
+                sale.save()
+
+        try:
+
+            cash_account = ChartOfAccount.objects.get(
+                code='1001'
+            )
+
+            ar_account = ChartOfAccount.objects.get(
+                code='1101'
+            )
+
+            journal = JournalEntry.objects.create(
+                reference=f"PAY-{payment.id}",
+                description=f"Customer Payment Sale #{sale.id}",
+                created_by=request.user,
+                date=timezone.now()
+            )
+
+            JournalLine.objects.create(
+                journal=journal,
+                account=cash_account,
+                entry_type='debit',
+                amount=amount
+            )
+
+            JournalLine.objects.create(
+                journal=journal,
+                account=ar_account,
+                entry_type='credit',
+                amount=amount
+            )
+
+        except Exception as e:
+            print(e)
+
+        return redirect(
+            'sale_invoice',
+            sale.id
+        )
+
+    return render(
+        request,
+        'finance/receive_payment.html',
+        {
+            'sale': sale,
+            'ar': ar
+        }
+    )
+
+from django.contrib.auth.decorators import login_required
+from .models import CustomerPayment
+
+
+@login_required
+def customer_payment_list(request):
+
+    payments = CustomerPayment.objects.all().order_by(
+        '-created_at'
+    )
+
+    return render(
+        request,
+        'finance/customer_payment_list.html',
+        {
+            'payments': payments
+        }
+    )
+
+from django.contrib.auth.decorators import login_required
+from .models import JournalEntry
+
+@login_required
+def journal_list(request):
+    journals = JournalEntry.objects.all().order_by('-date')
+
+    return render(
+        request,
+        'finance/journal_list.html',
+        {'journals': journals}
+    )
+
+from waste_management.models import WastePurchase
+
+@login_required
+def waste_receipt_list(request):
+
+    receipts = WastePurchase.objects.select_related(
+        'supplier',
+        'category'
+    ).order_by('-created_at')
+
+    return render(
+        request,
+        'finance/waste_receipt_list.html',
+        {
+            'receipts': receipts
+        }
+    )

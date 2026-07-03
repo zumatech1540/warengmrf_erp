@@ -36,6 +36,9 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    "jazzmin",
+    
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # ERP APPS
+     'axes',
     'accounts',
     'dashboard',
     'waste_management',
@@ -55,7 +59,38 @@ INSTALLED_APPS = [
     'core',
     'sales',
 ]
+JAZZMIN_SETTINGS = {
 
+    "site_title": "WarengERP",
+
+    "site_header": "WarengERP",
+
+    "site_brand": "WarengERP",
+
+    "site_logo": "images/logo.png",
+
+    "welcome_sign": "Welcome to WarengERP",
+
+    "copyright": "WarengERP",
+
+    "show_sidebar": True,
+
+    "navigation_expanded": True,
+
+    "icons": {
+        "auth.User": "fas fa-users",
+        "inventory.Item": "fas fa-boxes",
+        "sales.Sale": "fas fa-shopping-cart",
+        "finance.AccountReceivable": "fas fa-file-invoice-dollar",
+        "finance.AccountPayable": "fas fa-money-bill-wave",
+        "hr.Employee": "fas fa-user-tie",
+        "waste_management.WastePurchase": "fas fa-recycle",
+    },
+}
+AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
 AUTH_USER_MODEL = 'accounts.User'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard_redirect'

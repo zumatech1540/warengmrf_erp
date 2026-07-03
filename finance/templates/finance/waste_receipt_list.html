@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h3>🧾 Waste Purchase Receipts</h3>
+
+    <table class="table table-bordered table-striped">
+
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Supplier</th>
+                <th>Category</th>
+                <th>Quantity</th>
+                <th>Amount</th>
+                <th>Receipt</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for r in receipts %}
+
+            <tr>
+
+                <td>{{ r.created_at|date:"Y-m-d H:i" }}</td>
+
+                <td>{{ r.supplier.name }}</td>
+
+                <td>{{ r.category.name }}</td>
+
+                <td>{{ r.quantity }} KG</td>
+
+                <td>KES {{ r.total_amount }}</td>
+
+                <td>
+
+                    <a href="{% url 'download_receipt' r.id %}"
+                       class="btn btn-sm btn-success">
+
+                        Download
+
+                    </a>
+
+                </td>
+
+            </tr>
+
+        {% empty %}
+
+            <tr>
+                <td colspan="6">
+                    No receipts found.
+                </td>
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

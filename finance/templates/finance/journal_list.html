@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h3>📘 Journal Entries</h3>
+
+    <table class="table table-bordered">
+
+        <thead>
+            <tr>
+                <th>Reference</th>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Balanced</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for journal in journals %}
+
+            <tr>
+                <td>{{ journal.reference }}</td>
+                <td>{{ journal.description }}</td>
+                <td>{{ journal.date }}</td>
+
+                <td>
+                    {% if journal.is_balanced %}
+                        ✅ Balanced
+                    {% else %}
+                        ❌ Unbalanced
+                    {% endif %}
+                </td>
+            </tr>
+
+        {% empty %}
+
+            <tr>
+                <td colspan="4">
+                    No journal entries found.
+                </td>
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

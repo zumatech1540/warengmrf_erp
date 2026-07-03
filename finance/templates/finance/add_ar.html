@@ -1,44 +1,306 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="container mt-4">
+<style>
+.card-modern{
+    border:none;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 12px 35px rgba(0,0,0,.08);
+}
 
-    <h2>Add Accounts Receivable</h2>
+.gradient-header{
+    background:linear-gradient(135deg,#16a34a,#15803d);
+    color:white;
+    padding:25px;
+}
 
-    <form method="POST">
-        {% csrf_token %}
+.form-control{
+    border-radius:12px;
+    min-height:50px;
+}
 
-        <div class="mb-3">
-            <label>Customer Name</label>
-            <input type="text" name="customer_name" class="form-control" required>
-        </div>
+.summary-box{
+    background:#f8fafc;
+    border-left:5px solid #16a34a;
+    border-radius:12px;
+    padding:15px;
+}
 
-        <div class="mb-3">
-            <label>Amount Due</label>
-            <input type="number" step="0.01" name="amount_due" class="form-control" required>
-        </div>
+.preview-number{
+    font-size:1.2rem;
+    font-weight:700;
+}
 
-        <div class="mb-3">
-            <label>Amount Paid</label>
-            <input type="number" step="0.01" name="amount_paid" class="form-control">
-        </div>
+.info-card{
+    background:white;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 5px 20px rgba(0,0,0,.05);
+}
 
-        <div class="mb-3">
-            <label>Description</label>
-            <textarea name="description" class="form-control"></textarea>
-        </div>
+.btn-save{
+    border-radius:12px;
+    padding:12px 30px;
+    font-weight:600;
+}
+</style>
 
-        <div class="mb-3">
-            <label>Due Date</label>
-            <input type="date" name="due_date" class="form-control" required>
-        </div>
+<div class="container-fluid py-4">
 
-        <button class="btn btn-success">Save AR</button>
-    </form>
-<a href="{% url 'finance_dashboard' %}"
-   class="btn btn-outline-primary btn-md shadow-sm px-3">
-    ⬅ Return to Dashboard
-</a>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">
+            📈 Accounts Receivable Management
+        </h2>
+        <p class="text-muted mb-0">
+            Record customer invoices and monitor incoming revenue.
+        </p>
+    </div>
+
+    <a href="{% url 'finance_dashboard' %}"
+       class="btn btn-outline-primary shadow-sm">
+        ⬅ Return to Dashboard
+    </a>
 </div>
+
+<div class="row">
+
+    <div class="col-lg-8">
+
+        <div class="card card-modern">
+
+            <div class="gradient-header">
+                <h4 class="mb-1">
+                    Create Customer Receivable
+                </h4>
+
+                <small>
+                    Register outstanding customer balances and expected collections.
+                </small>
+            </div>
+
+            <div class="card-body p-4">
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="fw-bold">
+                            👤 Customer Name
+                        </label>
+                        <input
+                            type="text"
+                            name="customer_name"
+                            class="form-control"
+                            placeholder="Enter customer or organization name"
+                            required>
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold">
+                                Invoice Amount (KES)
+                            </label>
+                            <input
+                                type="number"
+                                step="0.01"
+                                min="0.01"
+                                id="amount_due"
+                                name="amount_due"
+                                class="form-control"
+                                placeholder="0.00"
+                                required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold">
+                                Amount Received (KES)
+                            </label>
+                            <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value="0"
+                                id="amount_paid"
+                                name="amount_paid"
+                                class="form-control">
+                        </div>
+
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="fw-bold">
+                            Due Date
+                        </label>
+                        <input
+                            type="date"
+                            name="due_date"
+                            id="due_date"
+                            class="form-control"
+                            required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="fw-bold">
+                            Description
+                        </label>
+                        <textarea
+                            name="description"
+                            rows="4"
+                            class="form-control"
+                            placeholder="Invoice details, service rendered, customer notes..."></textarea>
+                    </div>
+
+                    <div class="summary-box mb-4">
+
+                        <div class="row text-center">
+
+                            <div class="col-md-4">
+                                <div class="text-muted">
+                                    Invoice Value
+                                </div>
+                                <div id="invoicePreview"
+                                     class="preview-number text-primary">
+                                    KES 0.00
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="text-muted">
+                                    Received
+                                </div>
+                                <div id="paidPreview"
+                                     class="preview-number text-success">
+                                    KES 0.00
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="text-muted">
+                                    Outstanding
+                                </div>
+                                <div id="balancePreview"
+                                     class="preview-number text-danger">
+                                    KES 0.00
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+
+                        <a href="{% url 'finance_dashboard' %}"
+                           class="btn btn-light border">
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="btn btn-success btn-save">
+
+                            💾 Save Accounts Receivable
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
+
+        <div class="info-card mb-3">
+
+            <h5 class="fw-bold">
+                📊 Revenue Impact
+            </h5>
+
+            <hr>
+
+            <p class="text-muted small">
+                Every Accounts Receivable entry increases expected revenue and tracks customer debt.
+            </p>
+
+            <ul class="small">
+                <li>Customer Balance Updated</li>
+                <li>Receivable Ledger Updated</li>
+                <li>Cash Collection Tracking</li>
+                <li>Aging Analysis Support</li>
+            </ul>
+
+        </div>
+
+        <div class="info-card">
+
+            <h5 class="fw-bold">
+                💡 Best Practice
+            </h5>
+
+            <hr>
+
+            <p class="small text-muted">
+                Record AR immediately after issuing an invoice. As payments arrive, update collections to maintain accurate financial statements and cash flow projections.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</div>
+
+<script>
+
+function updatePreview(){
+
+    let due = parseFloat(
+        document.getElementById('amount_due').value
+    ) || 0;
+
+    let paid = parseFloat(
+        document.getElementById('amount_paid').value
+    ) || 0;
+
+    let balance = due - paid;
+
+    document.getElementById('invoicePreview').innerHTML =
+        "KES " + due.toLocaleString();
+
+    document.getElementById('paidPreview').innerHTML =
+        "KES " + paid.toLocaleString();
+
+    document.getElementById('balancePreview').innerHTML =
+        "KES " + balance.toLocaleString();
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+
+    const dueDate = document.getElementById("due_date");
+
+    let date = new Date();
+    date.setDate(date.getDate() + 30);
+
+    dueDate.value = date.toISOString().split('T')[0];
+
+    document.getElementById('amount_due')
+        .addEventListener('input', updatePreview);
+
+    document.getElementById('amount_paid')
+        .addEventListener('input', updatePreview);
+});
+
+</script>
 
 {% endblock %}

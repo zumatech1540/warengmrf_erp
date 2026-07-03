@@ -4,9 +4,20 @@ from decimal import Decimal
 from django.db import models, transaction
 from django.conf import settings
 from django.utils import timezone
+from decimal import Decimal
+import logging
+
+from django.conf import settings
+from django.db import models, transaction
+from django.utils import timezone
+
+from inventory.models import Item, StockMovement
+from core.models import Transaction
+
 
 # Core module
 from core.models import Transaction
+from core.services import get_or_create_department
 
 # Inventory module
 from inventory.models import Item, StockMovement
@@ -153,31 +164,78 @@ class WasteStatusHistory(models.Model):
 # 4. WASTE PURCHASE (COMMERCIAL SUPPLIER PROCUREMENT)
 # ==========================================================
 
-
-
-
 import logging
+
 
 logger = logging.getLogger(__name__)
 
 
 class WastePurchase(models.Model):
 
-    supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT)
-    category = models.ForeignKey(WasteCategory, on_delete=models.PROTECT)
+    
+    supplier = models.ForeignKey(
+        Supplier,
+        on_delete=models.PROTECT
+    )
 
-    quantity = models.DecimalField(max_digits=12, decimal_places=2)
-    unit_price = models.DecimalField(max_digits=12, decimal_places=2)
+    category = models.ForeignKey(
+        'waste_management.WasteCategory',
+        on_delete=models.PROTECT
+    )
+
+    # =========================
+    # NORMAL WASTE
+    # =========================
+    quantity = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
+
+    # =========================
+    # TIMBER
+    # =========================
+    timber_size = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True
+    )
+
+    timber_length = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True
+    )
+
+    pieces = models.PositiveIntegerField(
+        default=0
+    )
+
+    # =========================
+    # PRICING
+    # =========================
+    unit_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
 
     total_amount = models.DecimalField(
         max_digits=12,
         decimal_places=2,
-        editable=False,
-        default=0
+        default=0,
+        editable=False
     )
 
-    is_paid_on_delivery = models.BooleanField(default=True)
+    # =========================
+    # PAYMENT
+    # =========================
+    is_paid_on_delivery = models.BooleanField(
+        default=True
+    )
 
+    # =========================
+    # AUDIT
+    # =========================
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -185,92 +243,262 @@ class WastePurchase(models.Model):
         blank=True
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.supplier.name} - {self.category.name} ({self.quantity} KG)"
 
-    # ======================================================
-    # PROFESSIONAL SAVE LOGIC (ATOMIC + SAFE)
-    # ======================================================
+        supplier_name = getattr(
+            self.supplier,
+            "company_name",
+            "Unknown Supplier"
+        )
+
+        if self.pieces:
+
+            return (
+                f"{supplier_name} - "
+                f"{self.timber_size} "
+                f"{self.timber_length}ft "
+                f"({self.pieces} pcs)"
+            )
+
+        return (
+            f"{supplier_name} - "
+            f"{self.category.name} "
+            f"({self.quantity} KG)"
+        )
+    def clean(self):
+        # Ensure quantity is not empty if it's not a timber purchase
+        if not self.pieces and (self.quantity is None or self.quantity == ''):
+            self.quantity = Decimal('0')
+
     def save(self, *args, **kwargs):
 
         is_new = self.pk is None
 
-        # SAFE DECIMAL HANDLING
-        qty = Decimal(str(self.quantity or 0))
-        price = Decimal(str(self.unit_price or 0))
-        self.total_amount = qty * price
+        price = Decimal(
+            str(self.unit_price or 0)
+        )
 
-        # SAVE FIRST (required for FK id access)
+        # =========================
+        # CALCULATE TOTAL
+        # =========================
+        if self.pieces:
+
+            self.total_amount = (
+                Decimal(str(self.pieces))
+                * price
+            )
+
+        else:
+
+            qty = Decimal(
+                str(self.quantity or 0)
+            )
+
+            self.total_amount = qty * price
+
         super().save(*args, **kwargs)
 
         if not is_new:
             return
 
-        supplier_name = getattr(self.supplier, "company_name", "Unknown")
-        
-        category_name = self.category.name if self.category else "Unassigned"
+        supplier_name = getattr(
+            self.supplier,
+            "company_name",
+            "Unknown Supplier"
+        )
+
+        category_name = (
+            self.category.name
+            if self.category
+            else "Unassigned"
+        )
 
         try:
+
             with transaction.atomic():
 
-                # ======================================================
-                # 1. INVENTORY SYNC
-                # ======================================================
-                item, _ = Item.objects.get_or_create(
-                    name=category_name,
+                # =========================
+                # INVENTORY ITEM
+                # =========================
+                unit = "kg"
+
+                item_name = category_name
+
+                stock_qty = self.quantity
+
+                if self.pieces:
+
+                    unit = "pieces"
+
+                    stock_qty = self.pieces
+
+                    item_name = (
+                        f"Timber "
+                        f"{self.timber_size} "
+                        f"{self.timber_length}ft"
+                    )
+
+                item, created = Item.objects.get_or_create(
+                    name=item_name,
                     defaults={
                         "category": "other",
-                        "unit": "kg",
+                        "unit": unit,
                         "unit_price": price
                     }
                 )
 
+                # =========================
+                # STOCK MOVEMENT
+                # =========================
                 StockMovement.objects.create(
                     item=item,
                     movement_type="in",
-                    quantity=qty,
-                    reason=f"Waste Purchase #{self.id} from {supplier_name}",
+                    quantity=stock_qty,
+                    reason=(
+                        f"Waste Purchase "
+                        f"#{self.id} "
+                        f"from {supplier_name}"
+                    ),
                     created_by=self.created_by
                 )
 
-                # ======================================================
-                # 2. FINANCE MODULE
-                # ======================================================
-                from finance.models import AccountPayable, Payment
+                # =========================
+                # FINANCE
+                # =========================
+                from finance.models import (
+                    AccountPayable,
+                    Payment,
+                    JournalEntry,
+                    JournalLine,
+                    ChartOfAccount
+                )
 
-                paid_amount = self.total_amount if self.is_paid_on_delivery else Decimal("0")
+                from finance.utils import (
+                    generate_invoice_number
+                )
 
                 ap = AccountPayable.objects.create(
                     supplier_name=supplier_name,
                     amount_due=self.total_amount,
-                    amount_paid=paid_amount,
+                    amount_paid=Decimal("0"),
                     description=f"Waste Purchase #{self.id}",
                     due_date=timezone.now().date()
                 )
 
                 if self.is_paid_on_delivery:
+
                     Payment.objects.create(
                         payment_type="ap",
                         ap=ap,
                         amount=self.total_amount,
-                        method=self.supplier.payment_method if self.supplier else "cash",
+                        method=getattr(
+                            self.supplier,
+                            "payment_method",
+                            "cash"
+                        ),
                         reference=f"WP-{self.id}",
                         date=timezone.now()
                     )
 
-                # ======================================================
-                # 3. CORE TRANSACTION LOG
-                # ======================================================
+                # =========================
+                # JOURNAL ENTRY
+                # =========================
+                try:
+
+                    inventory_account = (
+                        ChartOfAccount.objects.get(
+                            code="1301"
+                        )
+                    )
+
+                    if self.is_paid_on_delivery:
+
+                        credit_account = (
+                            ChartOfAccount.objects.get(
+                                code="1001"
+                            )
+                        )
+
+                    else:
+
+                        credit_account = (
+                            ChartOfAccount.objects.get(
+                                code="2001"
+                            )
+                        )
+
+                    journal = JournalEntry.objects.create(
+                        reference=generate_invoice_number(),
+                        description=f"Waste Purchase #{self.id}",
+                        date=timezone.now(),
+                        created_by=self.created_by
+                    )
+
+                    JournalLine.objects.create(
+                        journal=journal,
+                        account=inventory_account,
+                        entry_type="debit",
+                        amount=self.total_amount
+                    )
+
+                    JournalLine.objects.create(
+                        journal=journal,
+                        account=credit_account,
+                        entry_type="credit",
+                        amount=self.total_amount
+                    )
+
+                except Exception as e:
+
+                    logger.error(
+                        f"Journal posting failed: {e}",
+                        exc_info=True
+                    )
+
+                # =========================
+                # TRANSACTION LOG
+                # =========================
+                if self.pieces:
+
+                    description = (
+                        f"Timber Purchase #{self.id} | "
+                        f"{self.timber_size} "
+                        f"{self.timber_length}ft | "
+                        f"{self.pieces} pcs | "
+                        f"KES {self.total_amount}"
+                    )
+
+                else:
+
+                    description = (
+                        f"Waste Purchase #{self.id} | "
+                        f"{category_name} | "
+                        f"{self.quantity} KG | "
+                        f"KES {self.total_amount}"
+                    )
+
                 Transaction.objects.create(
-                    type="waste_purchase",
-                    description=f"{category_name} | {qty} KG | KES {self.total_amount}",
+                    type="waste",
+                    department=get_or_create_department(
+                        "waste"
+                    ),
+                    description=description,
                     amount=self.total_amount,
                     created_by=self.created_by
                 )
 
         except Exception as e:
-            logger.error(f"WastePurchase sync failed: {e}", exc_info=True)
-            # optional: re-raise in production
-            # raise
+
+            logger.error(
+                f"WastePurchase sync failed: {e}",
+                exc_info=True
+            )
+
+            raise

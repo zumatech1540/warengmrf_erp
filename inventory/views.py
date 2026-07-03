@@ -9,7 +9,7 @@ from django.db import transaction
 from django.http import HttpResponse
 from core.models import Supplier
 from django.utils.timezone import now
-
+from core.models import AuditLog
 from accounts.decorators import role_required
 from .models import (
     Item,

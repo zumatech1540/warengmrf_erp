@@ -2,57 +2,299 @@
 
 {% block content %}
 
-<div class="container mt-4">
+<div class="container-fluid px-4 py-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold">📋 All Sales Registry</h3>
+```
+<!-- HEADER -->
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4 border-bottom pb-3">
+
+    <div>
+        <h2 class="fw-bold text-dark mb-1">
+            📦 Sales Registry
+        </h2>
+
+        <p class="text-muted mb-0">
+            Complete record of customer sales transactions, invoices and revenue activity.
+        </p>
     </div>
 
-    <div class="card shadow-sm border-0 rounded-3">
-        <div class="card-body p-0 table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+    <div class="mt-3 mt-lg-0">
+
+        <a href="{% url 'create_sale' %}"
+           class="btn btn-primary shadow-sm me-2">
+
+            ➕ New Sale
+
+        </a>
+
+        <a href="{% url 'sales_dashboard' %}"
+           class="btn btn-outline-secondary shadow-sm">
+
+            📊 Dashboard
+
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- SUMMARY CARD -->
+<div class="row mb-4">
+
+    <div class="col-md-4">
+
+        <div class="card border-0 shadow-sm bg-info text-white h-100">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <small class="text-white-50">
+                            ACTIVE CUSTOMERS
+                        </small>
+
+                        <h2 class="fw-bold mb-0">
+                            {{ total_customers }}
+                        </h2>
+
+                    </div>
+
+                    <div style="font-size:45px;">
+                        👥
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- SEARCH -->
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body">
+
+        <input
+            type="text"
+            id="salesSearch"
+            class="form-control"
+            placeholder="🔍 Search customer, item, invoice..."
+        >
+
+    </div>
+
+</div>
+
+
+<!-- SALES TABLE -->
+<div class="card border-0 shadow-sm">
+
+    <div class="card-header bg-white py-3">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <h5 class="mb-0 fw-bold text-secondary">
+                Sales Transaction Ledger
+            </h5>
+
+            <span class="badge bg-primary">
+                {{ sales|length }} Records
+            </span>
+
+        </div>
+
+    </div>
+
+    <div class="card-body p-0">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle mb-0" id="salesTable">
+
+                <thead class="table-dark">
+
                     <tr>
-                        <th class="ps-4">ID</th>
+                        <th>#</th>
                         <th>Customer</th>
-                        <th>Item</th>
-                        <th>Qty</th>
-                        <th>Total</th>
+                        <th>Material</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
                         <th>Date</th>
-                        <th class="pe-4 text-end">Actions</th> </tr>
+                        <th class="text-center">Actions</th>
+                    </tr>
+
                 </thead>
 
                 <tbody>
+
                     {% for sale in sales %}
+
                     <tr>
-                        <td class="ps-4 fw-semibold">#{{ sale.id }}</td>
-                        <td>{{ sale.customer.company_name|default:"Individual Customer" }}</td>
-                        <td>{{ sale.item.name }}</td>
-                        <td>{{ sale.quantity }}</td>
-                        <td class="fw-bold text-success">KES {{ sale.total_amount|floatformat:2 }}</td>
-                        <td class="text-muted small">{{ sale.created_at|date:"Y-m-d H:i" }}</td>
-                        
-                        <td class="pe-4 text-end">
-                            {% if sale.id %}
-                            <a href="{% url 'sale_invoice' sale.id %}" class="btn btn-sm btn-success shadow-sm px-3">
-                                📄 Invoice
-                            </a>
-                            {% else %}
-                            <span class="text-muted small">No ID</span>
+
+                        <td>
+                            <strong>#{{ sale.id }}</strong>
+                        </td>
+
+                        <td>
+                            {{ sale.customer.company_name|default:"Walk-in Customer" }}
+                        </td>
+
+                        <td>
+
+                            <strong>
+                                {{ sale.item.name }}
+                            </strong>
+
+                            {% if sale.item.unit == "pieces" %}
+                                <br>
+                                <small class="text-muted">
+                                    Timber Material
+                                </small>
                             {% endif %}
+
                         </td>
+
+                        <td>
+
+                            {% if sale.item.unit == "pieces" %}
+
+                                {{ sale.quantity }} Pieces
+
+                            {% else %}
+
+                                {{ sale.quantity }} KG
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            KES {{ sale.unit_price|floatformat:2 }}
+                        </td>
+
+                        <td class="fw-bold text-success">
+                            KES {{ sale.total_amount|floatformat:2 }}
+                        </td>
+
+                        <td>
+
+                            {% if sale.status == 'paid' %}
+
+                                <span class="badge bg-success px-3 py-2">
+                                    ✔ Paid
+                                </span>
+
+                            {% elif sale.status == 'partial' %}
+
+                                <span class="badge bg-info px-3 py-2">
+                                    Partial
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-warning text-dark px-3 py-2">
+                                    Pending
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ sale.created_at|date:"d M Y H:i" }}
+                        </td>
+
+                        <td class="text-center">
+
+                            <div class="btn-group">
+
+                                <a href="{% url 'sale_invoice' sale.id %}"
+                                   class="btn btn-sm btn-primary">
+
+                                    📄 Invoice
+
+                                </a>
+
+                            </div>
+
+                        </td>
+
                     </tr>
+
                     {% empty %}
+
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-5">
-                            ℹ️ No transactional sales orders found in this ledger.
+
+                        <td colspan="9" class="text-center py-5">
+
+                            <div style="font-size:70px;">
+                                📦
+                            </div>
+
+                            <h5 class="text-muted mt-3">
+                                No Sales Transactions Found
+                            </h5>
+
+                            <p class="text-muted">
+                                Create your first sales order to begin generating revenue records.
+                            </p>
+
+                            <a href="{% url 'create_sale' %}"
+                               class="btn btn-primary">
+
+                                ➕ Create First Sale
+
+                            </a>
+
                         </td>
+
                     </tr>
+
                     {% endfor %}
+
                 </tbody>
+
             </table>
+
         </div>
+
     </div>
+
 </div>
+```
+
+</div>
+
+<script>
+
+document.getElementById('salesSearch').addEventListener('keyup', function() {
+
+    let value = this.value.toLowerCase();
+
+    let rows = document.querySelectorAll('#salesTable tbody tr');
+
+    rows.forEach(function(row) {
+
+        let text = row.textContent.toLowerCase();
+
+        row.style.display = text.includes(value)
+            ? ''
+            : 'none';
+
+    });
+
+});
+
+</script>
 
 {% endblock %}

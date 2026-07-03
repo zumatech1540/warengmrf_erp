@@ -1,154 +1,472 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="container mt-3">
+<div class="container-fluid py-4">
 
-    <div class="card shadow border-0">
 
-        <!-- HEADER -->
-        <div class="card-header bg-success text-white text-center">
-            <h5 class="mb-0">♻ Waste Collection Intake</h5>
+<div class="row justify-content-center">
+
+    <div class="col-lg-8">
+
+        <div class="card border-0 shadow-lg">
+
+            <!-- HEADER -->
+            <div class="card-header bg-success text-white text-center py-4">
+
+                <h3 class="fw-bold mb-1">
+                    ♻ Waste Collection Intake
+                </h3>
+
+                <p class="mb-0">
+                    Record Waste, Timber, Supplier & Collection Details
+                </p>
+
+            </div>
+
+            <div class="card-body p-4">
+
+                <form method="POST"
+                      enctype="multipart/form-data"
+                      id="intakeForm">
+
+                    {% csrf_token %}
+
+                    <!-- ==================================== -->
+                    <!-- COLLECTION DETAILS -->
+                    <!-- ==================================== -->
+
+                    <div class="card border-0 bg-light mb-4">
+
+                        <div class="card-header bg-dark text-white">
+                            Collection Information
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="mb-3">
+
+                                <label class="form-label fw-bold">
+                                    Waste Category
+                                </label>
+
+                                <select name="category"
+                                        id="categorySelect"
+                                        class="form-select"
+                                        required>
+
+                                    <option value="">
+                                        -- Select Category --
+                                    </option>
+
+                                    {% for cat in categories %}
+                                    <option value="{{ cat.id }}"
+                                            data-name="{{ cat.name|lower }}">
+                                        {{ cat.name }}
+                                    </option>
+                                    {% endfor %}
+
+                                </select>
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <label class="form-label fw-bold">
+                                    Waste Type
+                                </label>
+
+                                <select name="waste_type"
+                                        id="typeSelect"
+                                        class="form-select"
+                                        required>
+
+                                    <option value="">
+                                        -- Select Waste Type --
+                                    </option>
+
+                                    <!-- PLASTIC -->
+                                    <optgroup label="Plastic"
+                                              data-group="plastic">
+
+                                        <option value="plastic_bottles">
+                                            Plastic Bottles
+                                        </option>
+
+                                        <option value="plastic_bags">
+                                            Plastic Bags
+                                        </option>
+
+                                        <option value="plastic_containers">
+                                            Plastic Containers
+                                        </option>
+
+                                    </optgroup>
+
+                                    <!-- METAL -->
+                                    <optgroup label="Metal"
+                                              data-group="metal">
+
+                                        <option value="scrap_iron">
+                                            Scrap Iron
+                                        </option>
+
+                                        <option value="aluminium">
+                                            Aluminium
+                                        </option>
+
+                                        <option value="copper">
+                                            Copper
+                                        </option>
+
+                                    </optgroup>
+
+                                    <!-- PAPER -->
+                                    <optgroup label="Paper"
+                                              data-group="paper">
+
+                                        <option value="carton">
+                                            Carton
+                                        </option>
+
+                                        <option value="newspaper">
+                                            Newspaper
+                                        </option>
+
+                                    </optgroup>
+
+                                    <!-- TIMBER -->
+                                    <optgroup label="Timber"
+                                              data-group="timber">
+
+                                        <option value="2x2_10ft">
+                                            2 x 2 x 10ft
+                                        </option>
+
+                                        <option value="2x2_12ft">
+                                            2 x 2 x 12ft
+                                        </option>
+
+                                        <option value="2x3_10ft">
+                                            2 x 3 x 10ft
+                                        </option>
+
+                                        <option value="2x3_12ft">
+                                            2 x 3 x 12ft
+                                        </option>
+
+                                        <option value="2x4_10ft">
+                                            2 x 4 x 10ft
+                                        </option>
+
+                                        <option value="2x4_12ft">
+                                            2 x 4 x 12ft
+                                        </option>
+
+                                        <option value="4x2_10ft">
+                                            4 x 2 x 10ft
+                                        </option>
+
+                                        <option value="4x2_12ft">
+                                            4 x 2 x 12ft
+                                        </option>
+
+                                        <option value="6x1_12ft">
+                                            6 x 1 x 12ft
+                                        </option>
+
+                                        <option value="8x1_12ft">
+                                            8 x 1 x 12ft
+                                        </option>
+
+                                        <option value="8x2_12ft">
+                                            8 x 2 x 12ft
+                                        </option>
+
+                                        <option value="mixed_timber">
+                                            Mixed Timber
+                                        </option>
+
+                                        <option value="timber_offcuts">
+                                            Timber Offcuts
+                                        </option>
+
+                                    </optgroup>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- ==================================== -->
+                    <!-- SUPPLIER -->
+                    <!-- ==================================== -->
+
+                    <div class="card border-0 bg-light mb-4">
+
+                        <div class="card-header bg-primary text-white">
+                            Supplier Information
+                        </div>
+
+                        <div class="card-body">
+
+                            <label class="form-label fw-bold">
+                                Supplier / Customer
+                            </label>
+
+                            <select name="supplier"
+                                    class="form-select">
+
+                                <option value="">
+                                    Walk-in Customer
+                                </option>
+
+                                {% for supplier in suppliers %}
+                                <option value="{{ supplier.id }}">
+                                    {{ supplier.company_name }}
+                                    {% if supplier.phone %}
+                                        - {{ supplier.phone }}
+                                    {% endif %}
+                                </option>
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <!-- ==================================== -->
+                    <!-- NORMAL WASTE -->
+                    <!-- ==================================== -->
+
+                    <div id="kgSection">
+
+                        <div class="card border-0 bg-light mb-4">
+
+                            <div class="card-header bg-warning">
+                                Waste Quantity
+                            </div>
+
+                            <div class="card-body">
+
+                                <label class="form-label fw-bold">
+                                    Quantity (KG)
+                                </label>
+
+                                <input type="number"
+                                       step="0.01"
+                                       min="0"
+                                       name="quantity"
+                                       class="form-control">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- ==================================== -->
+                    <!-- TIMBER SECTION -->
+                    <!-- ==================================== -->
+
+                    <div id="timberSection"
+                         style="display:none;">
+
+                        <div class="card border-0 bg-light mb-4">
+
+                            <div class="card-header bg-success text-white">
+                                Timber Details
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="row">
+
+                                    <div class="col-md-6 mb-3">
+
+                                        <label class="form-label fw-bold">
+                                            Selected Timber Size
+                                        </label>
+
+                                        <input type="text"
+                                               id="selectedTimber"
+                                               class="form-control"
+                                               readonly>
+
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+
+                                        <label class="form-label fw-bold">
+                                            Number of Pieces
+                                        </label>
+
+                                        <input type="number"
+                                               min="1"
+                                               name="timber_pieces"
+                                               class="form-control">
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- ==================================== -->
+                    <!-- PHOTO -->
+                    <!-- ==================================== -->
+
+                    <div class="card border-0 bg-light mb-4">
+
+                        <div class="card-header bg-secondary text-white">
+                            Collection Evidence
+                        </div>
+
+                        <div class="card-body">
+
+                            <label class="form-label fw-bold">
+                                Capture Photo
+                            </label>
+
+                            <input type="file"
+                                   name="photo"
+                                   accept="image/*"
+                                   capture="environment"
+                                   class="form-control">
+
+                            <small class="text-muted">
+                                Take a photo as proof of collection.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <!-- ==================================== -->
+                    <!-- SUBMIT -->
+                    <!-- ==================================== -->
+
+                    <div class="d-grid">
+
+                        <button type="submit"
+                                class="btn btn-success btn-lg">
+
+                            💾 Save Intake Record
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
         </div>
 
-        <div class="card-body">
-
-            <form method="POST" enctype="multipart/form-data" id="intakeForm">
-                {% csrf_token %}
-
-                <!-- ========================= -->
-                <!-- WASTE CATEGORY -->
-                <!-- ========================= -->
-                <div class="mb-3">
-                    <label class="form-label">Waste Category</label>
-                    <select name="category" id="categorySelect" class="form-select" required>
-                        <option value="">-- Select Category --</option>
-                        {% for cat in categories %}
-                            <option value="{{ cat.id }}" data-name="{{ cat.name|lower }}">
-                                {{ cat.name }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- ========================= -->
-                <!-- WASTE TYPE (FILTERED UI) -->
-                <!-- ========================= -->
-                <div class="mb-3">
-                    <label class="form-label">Waste Type</label>
-                    <select name="waste_type" id="typeSelect" class="form-select" required>
-                        <option value="">-- Select Type --</option>
-
-                        <optgroup label="Plastics" data-group="plastic">
-                            <option value="bottles">Plastic Bottles</option>
-                            <option value="bags">Plastic Bags</option>
-                            <option value="containers">Plastic Containers</option>
-                        </optgroup>
-
-                        <optgroup label="Metals" data-group="metal">
-                            <option value="scrap_iron">Scrap Iron</option>
-                            <option value="aluminium">Aluminium</option>
-                            <option value="copper">Copper</option>
-                        </optgroup>
-
-                        <optgroup label="Paper" data-group="paper">
-                            <option value="carton">Carton</option>
-                            <option value="newspaper">Newspaper</option>
-                        </optgroup>
-                    </select>
-                </div>
-
-                <!-- ========================= -->
-                <!-- SUPPLIER DROPDOWN -->
-<div class="mb-3">
-    <label class="form-label">Supplier / Customer</label>
-
-    <select name="supplier" class="form-select">
-        <option value="">Walk-in Customer</option>
-
-        {% for supplier in suppliers %}
-            <option value="{{ supplier.id }}">
-                {{ supplier.company_name }}
-                {% if supplier.phone %} - {{ supplier.phone }}{% endif %}
-            </option>
-        {% endfor %}
-    </select>
-</div>
-
-                <!-- ========================= -->
-                <!-- QUANTITY -->
-                <!-- ========================= -->
-                <div class="mb-3">
-                    <label class="form-label">Quantity (KG)</label>
-                    <input type="number" step="0.01" name="quantity" class="form-control" required>
-                </div>
-
-                <!-- ========================= -->
-                <!-- PHOTO CAPTURE (MOBILE PWA READY) -->
-                <!-- ========================= -->
-                <div class="mb-3">
-                    <label class="form-label">Capture Photo</label>
-                    <input type="file"
-                           name="photo"
-                           accept="image/*"
-                           capture="environment"
-                           class="form-control">
-                    <small class="text-muted">Take photo as proof of collection</small>
-                </div>
-
-                <!-- ========================= -->
-                <!-- SUBMIT -->
-                <!-- ========================= -->
-                <button type="submit" class="btn btn-success w-100">
-                    Save Intake
-                </button>
-
-            </form>
-
-        </div>
     </div>
+
 </div>
 
-<!-- ========================= -->
-<!-- JAVASCRIPT FILTER LOGIC -->
-<!-- ========================= -->
+
+</div>
+
 <script>
+
 document.addEventListener("DOMContentLoaded", function () {
 
-    const categorySelect = document.getElementById("categorySelect");
-    const typeSelect = document.getElementById("typeSelect");
-    const groups = typeSelect.querySelectorAll("optgroup");
+    const categorySelect =
+        document.getElementById("categorySelect");
+
+    const typeSelect =
+        document.getElementById("typeSelect");
+
+    const groups =
+        typeSelect.querySelectorAll("optgroup");
+
+    const timberSection =
+        document.getElementById("timberSection");
+
+    const kgSection =
+        document.getElementById("kgSection");
+
+    const selectedTimber =
+        document.getElementById("selectedTimber");
 
     categorySelect.addEventListener("change", function () {
 
-        const selected = categorySelect.options[categorySelect.selectedIndex];
-        const name = selected.getAttribute("data-name") || "";
+        const selected =
+            categorySelect.options[
+                categorySelect.selectedIndex
+            ];
 
-        // reset
+        const name =
+            selected.getAttribute("data-name") || "";
+
         typeSelect.value = "";
 
         groups.forEach(group => {
 
-            const groupName = group.getAttribute("data-group");
+            const groupName =
+                group.getAttribute("data-group");
 
             if (name.includes(groupName)) {
+
                 group.style.display = "";
-                group.querySelectorAll("option").forEach(o => o.disabled = false);
+
+                group.querySelectorAll("option")
+                     .forEach(o => o.disabled = false);
+
             } else {
+
                 group.style.display = "none";
-                group.querySelectorAll("option").forEach(o => o.disabled = true);
+
+                group.querySelectorAll("option")
+                     .forEach(o => o.disabled = true);
+
             }
+
         });
+
     });
 
-    // Offline warning (PWA foundation)
-    document.getElementById("intakeForm").addEventListener("submit", function (e) {
-        if (!navigator.onLine) {
-            e.preventDefault();
-            alert("You are offline. Data will be saved later (PWA sync needed).");
+    typeSelect.addEventListener("change", function () {
+
+        const selectedOption =
+            typeSelect.selectedOptions[0];
+
+        if (!selectedOption)
+            return;
+
+        const group =
+            selectedOption.parentElement
+            .getAttribute("data-group");
+
+        if (group === "timber") {
+
+            timberSection.style.display = "block";
+            kgSection.style.display = "none";
+
+            selectedTimber.value =
+                selectedOption.text;
+
+        } else {
+
+            timberSection.style.display = "none";
+            kgSection.style.display = "block";
+
         }
+
     });
 
 });
+
 </script>
 
 {% endblock %}

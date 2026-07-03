@@ -1,172 +1,430 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
 <div class="container-fluid px-4 py-4">
 
-    <div class="card shadow-sm mb-4 border-0 rounded-3">
-        <div class="card-body py-2 px-3">
-            <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
-                <div class="d-flex flex-wrap gap-2">
-                    <a href="{% url 'finance_dashboard' %}" class="btn btn-dark btn-sm shadow-sm px-3">
-                        🏠 Dashboard
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                💰 Finance Dashboard
+            </h2>
+
+            <p class="text-muted mb-0">
+                Financial Control Center, Accounts Receivable,
+                Payments, Accounting, Journals and Treasury Operations.
+            </p>
+        </div>
+
+        <div>
+            <a href="{% url 'make_payment' %}"
+               class="btn btn-dark shadow-sm">
+                ➕ New Payment
+            </a>
+        </div>
+
+    </div>
+
+    <!-- KPI CARDS -->
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-2">
+            <div class="card bg-success text-white border-0 shadow h-100">
+                <div class="card-body">
+                    <small class="text-white-50">TOTAL INCOME</small>
+                    <h4 class="fw-bold mt-2">
+                        KES {{ total_income|floatformat:2 }}
+                    </h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card bg-danger text-white border-0 shadow h-100">
+                <div class="card-body">
+                    <small class="text-white-50">TOTAL EXPENSES</small>
+                    <h4 class="fw-bold mt-2">
+                        KES {{ total_expense|floatformat:2 }}
+                    </h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card bg-primary text-white border-0 shadow h-100">
+                <div class="card-body">
+                    <small class="text-white-50">NET PROFIT</small>
+                    <h4 class="fw-bold mt-2">
+                        KES {{ profit|floatformat:2 }}
+                    </h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card bg-warning border-0 shadow h-100">
+                <div class="card-body">
+                    <small>ACCOUNTS RECEIVABLE</small>
+                    <h4 class="fw-bold mt-2">
+                        KES {{ total_receivables|floatformat:2 }}
+                    </h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card bg-secondary text-white border-0 shadow h-100">
+                <div class="card-body">
+                    <small class="text-white-50">ACCOUNTS PAYABLE</small>
+                    <h4 class="fw-bold mt-2">
+                        KES {{ total_payables|floatformat:2 }}
+                    </h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card bg-info text-white border-0 shadow h-100">
+                <div class="card-body">
+                    <small class="text-white-50">CASH POSITION</small>
+                    <h4 class="fw-bold mt-2">
+                        KES {{ cash_position|floatformat:2 }}
+                    </h4>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- QUICK ACTIONS -->
+
+    <div class="card shadow border-0 mb-4">
+
+        <div class="card-header bg-light">
+            <h5 class="mb-0">⚡ Quick Finance Actions</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <div class="col-md-3">
+                    <a href="{% url 'add_income' %}"
+                       class="btn btn-success w-100">
+                        ➕ Add Income
                     </a>
-                    <a href="{% url 'income_list' %}" class="btn btn-outline-success btn-sm px-3">
-                        💰 Income
+                </div>
+
+                <div class="col-md-3">
+                    <a href="{% url 'add_expense' %}"
+                       class="btn btn-danger w-100">
+                        ➕ Add Expense
                     </a>
-                    <a href="{% url 'expense_list' %}" class="btn btn-outline-danger btn-sm px-3">
-                        💸 Expenses
+                </div>
+
+                <div class="col-md-3">
+                    <a href="{% url 'make_payment' %}"
+                       class="btn btn-dark w-100">
+                        💳 Process Payment
                     </a>
-                    <a href="{% url 'ar_list' %}" class="btn btn-outline-primary btn-sm px-3">
-                        📊 Accounts Receivable
-                    </a>
-                    <a href="{% url 'ap_list' %}" class="btn btn-outline-warning btn-sm px-3">
-                        📉 Accounts Payable
-                    </a>
-                    <a href="{% url 'make_payment' %}" class="btn btn-outline-dark btn-sm px-3">
-                        💳 Payments
-                    </a>
-                    <a href="{% url 'ledger_list' %}" class="btn btn-outline-info btn-sm px-3">
+                </div>
+
+                <div class="col-md-3">
+                    <a href="{% url 'ledger_list' %}"
+                       class="btn btn-info w-100">
                         📒 Ledger
                     </a>
                 </div>
 
-                <div class="d-flex gap-2 ms-auto ms-lg-0">
-                    <a href="{% url 'add_income' %}" class="btn btn-success btn-sm shadow-sm">
-                        + Income
-                    </a>
-                    <a href="{% url 'add_expense' %}" class="btn btn-danger btn-sm shadow-sm">
-                        + Expense
-                    </a>
-                </div>
             </div>
+
         </div>
+
     </div>
 
-    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center border-bottom pb-3 mb-4">
-        <div>
-            <h2 class="fw-bold text-dark mb-1">💸 Finance Dashboard</h2>
-            <p class="text-muted mb-0">Real-time accrual tracking overview of income streams, liabilities, and automated general ledger adjustments.</p>
-        </div>
-        <div class="mt-3 mt-sm-0">
-            <a href="{% url 'make_payment' %}" class="btn btn-dark shadow-sm px-3">
-                ➕ New Payment Entry
-            </a>
-        </div>
-    </div>
+    <!-- SALES & RECEIPTS -->
 
     <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="card bg-success text-white border-0 shadow-sm h-100 rounded-3">
-                <div class="card-body p-4 d-flex flex-column justify-content-between">
-                    <div>
-                        <span class="text-white text-opacity-75 small text-uppercase fw-semibold d-block mb-1">Total Accrued Income</span>
-                        <h2 class="fw-bold mb-0">KES {{ total_income|floatformat:2 }}</h2>
-                    </div>
-                    <div class="mt-4 pt-2 border-top border-white border-opacity-10">
-                        <a href="{% url 'income_list' %}" class="text-white text-decoration-none small fw-medium hover-opacity">
-                            View Income Journal →
-                        </a>
-                    </div>
+
+        <div class="col-md-6">
+
+            <div class="card shadow border-0 h-100">
+
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">📄 Sales Invoices</h5>
                 </div>
+
+                <div class="card-body">
+
+                    <p class="text-muted">
+                        View all sales invoices generated by the sales department.
+                    </p>
+
+                    <div class="d-grid gap-2">
+
+                        <div class="d-grid gap-2">
+
+    <a href="{% url 'sale_list' %}"
+       class="btn btn-outline-success">
+        📋 Invoices
+    </a>
+
+   
+
+</div>
+                     
+                    </div>
+
+                </div>
+
             </div>
+
         </div>
 
-        <div class="col-md-4">
-            <div class="card bg-danger text-white border-0 shadow-sm h-100 rounded-3">
-                <div class="card-body p-4 d-flex flex-column justify-content-between">
-                    <div>
-                        <span class="text-white text-opacity-75 small text-uppercase fw-semibold d-block mb-1">Total Accrued Expenses</span>
-                        <h2 class="fw-bold mb-0">KES {{ total_expense|floatformat:2 }}</h2>
-                    </div>
-                    <div class="mt-4 pt-2 border-top border-white border-opacity-10">
-                        <a href="{% url 'expense_list' %}" class="text-white text-decoration-none small fw-medium hover-opacity">
-                            View Expense Distribution →
-                        </a>
-                    </div>
+        <div class="col-md-6">
+
+            <div class="card shadow border-0 h-100">
+
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">🧾 Receipts Center</h5>
                 </div>
+
+                <div class="card-body">
+
+                    <p class="text-muted">
+                        Access payment history and download receipts.
+                    </p>
+
+                    <div class="d-grid gap-2">
+
+                        <a href="{% url 'make_payment' %}"
+                           class="btn btn-outline-primary">
+                            💳 Process Payment
+                        </a>
+
+                        <a href="{% url 'customer_payment_list' %}"
+                           class="btn btn-outline-dark">
+                            📑 Payment History
+                        </a>
+
+                        <a href="{% url 'waste_receipt_list' %}"
+   class="btn btn-outline-success">
+    🧾 Waste Purchase Receipts
+</a>
+
+                    </div>
+
+                </div>
+
             </div>
+
         </div>
 
-        <div class="col-md-4">
-            <div class="card bg-primary text-white border-0 shadow-sm h-100 rounded-3">
-                <div class="card-body p-4 d-flex flex-column justify-content-between">
-                    <div>
-                        <span class="text-white text-opacity-75 small text-uppercase fw-semibold d-block mb-1">Net Margin Spread</span>
-                        <h2 class="fw-bold mb-0">KES {{ profit|floatformat:2 }}</h2>
-                    </div>
-                    <div class="mt-4 pt-2 border-top border-white border-opacity-10">
-                        <small class="text-white text-opacity-75 d-block small">Calculated: Income Balance − Expense Allocations</small>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <h5 class="fw-bold text-secondary mb-3">🛠️ Sub-Ledger Control Centers</h5>
-    <div class="row g-4">
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 rounded-3 text-center p-4 bg-white h-100 d-flex flex-column justify-content-between">
-                <div>
-                    <span class="fs-4 d-block mb-2">📊</span>
-                    <h5 class="fw-bold text-dark mb-2">Accounts Receivable</h5>
-                    <p class="text-muted small mb-0">Track inbound buyer sales and credit accounts.</p>
+    <!-- AR & AP -->
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-6">
+
+            <div class="card shadow border-0 h-100">
+
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">📊 Accounts Receivable</h5>
                 </div>
-                <div class="mt-3 gap-2 d-flex flex-column">
-                    <a href="{% url 'ar_list' %}" class="btn btn-outline-primary btn-sm w-100 rounded">Open Ledger</a>
-                    <a href="{% url 'add_ar' %}" class="btn btn-light btn-sm text-success border w-100 rounded">+ Add Debtor</a>
+
+                <div class="card-body">
+
+                    <div class="d-grid gap-2">
+
+                        <a href="{% url 'ar_list' %}"
+                           class="btn btn-outline-warning">
+                            Open Receivables
+                        </a>
+
+                        <a href="{% url 'add_ar' %}"
+                           class="btn btn-warning">
+                            ➕ Add Receivable
+                        </a>
+
+                    </div>
+
                 </div>
+
             </div>
+
         </div>
 
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 rounded-3 text-center p-4 bg-white h-100 d-flex flex-column justify-content-between">
-                <div>
-                    <span class="fs-4 d-block mb-2">📉</span>
-                    <h5 class="fw-bold text-dark mb-2">Accounts Payable</h5>
-                    <p class="text-muted small mb-0">Manage vendor tracking obligations and liabilities.</p>
+        <div class="col-md-6">
+
+            <div class="card shadow border-0 h-100">
+
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">📉 Accounts Payable</h5>
                 </div>
-                <div class="mt-3 gap-2 d-flex flex-column">
-                    <a href="{% url 'ap_list' %}" class="btn btn-outline-warning btn-sm text-dark w-100 rounded">Open Ledger</a>
-                    <a href="{% url 'add_ap' %}" class="btn btn-light btn-sm text-warning-dark border w-100 rounded" style="color: #b45309;">+ Add Liability</a>
+
+                <div class="card-body">
+
+                    <div class="d-grid gap-2">
+
+                        <a href="{% url 'ap_list' %}"
+                           class="btn btn-outline-secondary">
+                            Open Payables
+                        </a>
+
+                        <a href="{% url 'add_ap' %}"
+                           class="btn btn-secondary">
+                            ➕ Add Payable
+                        </a>
+
+                    </div>
+
                 </div>
+
             </div>
+
         </div>
 
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 rounded-3 text-center p-4 bg-white h-100 d-flex flex-column justify-content-between">
-                <div>
-                    <span class="fs-4 d-block mb-2">💳</span>
-                    <h5 class="fw-bold text-dark mb-2">Payments & Treasury</h5>
-                    <p class="text-muted small mb-0">Execute settlements, log cross-app bank context receipts.</p>
-                </div>
-                <div class="mt-3">
-                    <a href="{% url 'make_payment' %}" class="btn btn-dark btn-sm w-100 rounded py-2 shadow-sm">
-                        💳 Process New Receipt
+    </div>
+
+    <!-- ACCOUNTING CENTER -->
+
+    <div class="card shadow border-0 mb-4">
+
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">📚 Accounting Center</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <a href="{% url 'ledger_list' %}"
+                       class="btn btn-outline-dark w-100">
+                        📒 General Ledger
                     </a>
                 </div>
+
+                <div class="col-md-4">
+                    <a href="{% url 'journal_list' %}"
+                       class="btn btn-outline-primary w-100">
+                        📘 Journal Entries
+                    </a>
+                </div>
+
+                <a href="#"
+   class="btn btn-outline-success w-100 disabled">
+    🏦 Chart of Accounts
+</a>
             </div>
+
         </div>
 
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 rounded-3 text-center p-4 bg-white h-100 d-flex flex-column justify-content-between">
-                <div>
-                    <span class="fs-4 d-block mb-2">📒</span>
-                    <h5 class="fw-bold text-dark mb-2">Double-Entry Ledger</h5>
-                    <p class="text-muted small mb-0">Audit continuous journals, cash flows, and sheets.</p>
-                </div>
-                <div class="mt-3 gap-2 d-flex flex-column">
-                    <a href="{% url 'ledger_list' %}" class="btn btn-outline-info btn-sm text-dark w-100 rounded">View General Ledger</a>
-                    <a href="{% url 'financial_reports' %}" class="btn btn-outline-secondary btn-sm w-100 rounded">📊 Financial Statements</a>
-                </div>
-            </div>
+    </div>
+
+    <!-- REPORTS -->
+
+    <div class="card shadow border-0 mb-4">
+
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">📈 Financial Reports & Audit</h5>
         </div>
+
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <div class="col-md-3">
+                    <a href="{% url 'financial_reports' %}"
+                       class="btn btn-outline-dark w-100">
+                        Income Statement
+                    </a>
+                </div>
+
+                <div class="col-md-3">
+                    <a href="{% url 'financial_reports' %}"
+                       class="btn btn-outline-dark w-100">
+                        Balance Sheet
+                    </a>
+                </div>
+
+                <div class="col-md-3">
+                    <a href="{% url 'financial_reports' %}"
+                       class="btn btn-outline-dark w-100">
+                        Cash Flow
+                    </a>
+                </div>
+
+                <div class="col-md-3">
+                    <a href="{% url 'ledger_list' %}"
+                       class="btn btn-outline-dark w-100">
+                        Trial Balance
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- RECENT TRANSACTIONS -->
+
+    <div class="card shadow border-0">
+
+        <div class="card-header bg-light">
+            <h5 class="mb-0">🕒 Recent Financial Transactions</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-striped table-hover">
+
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for tx in recent_transactions %}
+
+                        <tr>
+                            <td>{{ tx.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>{{ tx.description }}</td>
+                            <td>KES {{ tx.amount|floatformat:2 }}</td>
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+                            <td colspan="3" class="text-center">
+                                No recent transactions found
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
     </div>
 
 </div>
 
-<style>
-    .hover-opacity:hover {
-        opacity: 0.85;
-    }
-</style>
 {% endblock %}

@@ -1,5 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
+from core.models import AuditLog
 
 # Django core
 from django.shortcuts import render, redirect, get_object_or_404
@@ -10,6 +11,7 @@ from django.utils import timezone
 from django.template.loader import get_template
 from django.conf import settings
 from django.contrib import messages
+from core.services import get_or_create_department
 
 from core.models import Supplier
 
@@ -82,37 +84,82 @@ def waste_intake(request):
 
         category_id = request.POST.get('category')
         supplier_id = request.POST.get('supplier')
+
         quantity = request.POST.get('quantity')
+        timber_pieces = request.POST.get('timber_pieces')
 
-        # -------------------------
+        # ==========================
         # VALIDATION
-        # -------------------------
-        if not category_id or not quantity:
-            return HttpResponse("Category and quantity required", status=400)
+        # ==========================
+        if not category_id:
+            return HttpResponse(
+                "Category required",
+                status=400
+            )
 
         try:
-            quantity = Decimal(quantity)
-        except:
-            return HttpResponse("Invalid quantity", status=400)
-
-        # -------------------------
-        # GET OBJECTS SAFELY
-        # -------------------------
-        try:
-            category = WasteCategory.objects.get(id=category_id)
+            category = WasteCategory.objects.get(
+                id=category_id
+            )
         except WasteCategory.DoesNotExist:
-            return HttpResponse("Invalid category", status=400)
+            return HttpResponse(
+                "Invalid category",
+                status=400
+            )
 
+        # ==========================
+        # TIMBER = PIECES
+        # OTHER WASTE = KG
+        # ==========================
+        unit = "kg"
+
+        if timber_pieces:
+
+            try:
+                quantity = Decimal(timber_pieces)
+            except:
+                return HttpResponse(
+                    "Invalid timber pieces",
+                    status=400
+                )
+
+            unit = "pieces"
+
+        else:
+
+            if not quantity:
+                return HttpResponse(
+                    "Quantity required",
+                    status=400
+                )
+
+            try:
+                quantity = Decimal(quantity)
+            except:
+                return HttpResponse(
+                    "Invalid quantity",
+                    status=400
+                )
+
+        # ==========================
+        # SUPPLIER
+        # ==========================
         supplier = None
+
         if supplier_id:
             try:
-                supplier = Supplier.objects.get(id=supplier_id)
+                supplier = Supplier.objects.get(
+                    id=supplier_id
+                )
             except Supplier.DoesNotExist:
-                return HttpResponse("Invalid supplier selected", status=400)
+                return HttpResponse(
+                    "Invalid supplier selected",
+                    status=400
+                )
 
-        # -------------------------
-        # CREATE WASTE INTAKE
-        # -------------------------
+        # ==========================
+        # CREATE INTAKE
+        # ==========================
         waste = WasteIntake.objects.create(
             category=category,
             supplier=supplier,
@@ -121,38 +168,53 @@ def waste_intake(request):
             status='received'
         )
 
-        # -------------------------
-        # INVENTORY SYNC
-        # -------------------------
-        item, _ = Item.objects.get_or_create(
+        # ==========================
+        # INVENTORY UPDATE
+        # ==========================
+        item, created = Item.objects.get_or_create(
             name=category.name,
-            defaults={"category": "other", "unit": "kg"}
+            defaults={
+                "category": "other",
+                "unit": unit
+            }
         )
 
         StockMovement.objects.create(
             item=item,
             movement_type="in",
             quantity=quantity,
-            reason=f"Waste Intake - {supplier.company_name} ({supplier.phone})" if supplier else "Waste Intake - Walk-in",
+            reason=(
+                f"Waste Intake - {supplier.company_name} ({supplier.phone})"
+                if supplier else
+                "Waste Intake - Walk-in"
+            ),
             created_by=request.user
         )
 
-        # -------------------------
+        # ==========================
         # TRANSACTION LOG
-        # -------------------------
+        # ==========================
         Transaction.objects.create(
             type="waste_intake",
-            department = get_or_create_department("waste"),
-            description=f"{quantity}kg {category.name} from {getattr(supplier, 'company_name', 'Walk-in')}",
+            department=get_or_create_department("waste"),
+            description=(
+                f"{quantity} {unit} "
+                f"{category.name} from "
+                f"{getattr(supplier, 'company_name', 'Walk-in')}"
+            ),
             created_by=request.user
         )
 
         return redirect("waste_dashboard")
 
-    return render(request, "waste_management/intake.html", {
-        "categories": categories,
-        "suppliers": suppliers
-    })
+    return render(
+        request,
+        "waste_management/intake.html",
+        {
+            "categories": categories,
+            "suppliers": suppliers
+        }
+    )
 # -------------------------
 # WASTE LIST
 # -------------------------
@@ -207,17 +269,13 @@ def waste_status_history(request, waste_id):
 
 
 
-
-
-
-
 @login_required
 def change_waste_status(request, waste_id, status):
 
     # =========================
     # ROLE SECURITY (IMPORTANT)
     # =========================
-    if request.user.role not in ['supervisor', 'manager']:
+    if request.user.role not in ['supervisor', 'manager', 'super_admin', 'director']:
         return HttpResponse("❌ You are not allowed to change waste status", status=403)
 
     waste_obj = get_object_or_404(WasteIntake, id=waste_id)
@@ -255,7 +313,7 @@ def update_status_ajax(request):
 
     if request.method == "POST":
 
-        if request.user.role not in ['supervisor', 'manager']:
+        if request.user.role not in ['supervisor', 'manager', 'super_admin', 'director']:
             return JsonResponse({'error': 'Unauthorized'}, status=403)
 
         waste_id = request.POST.get('id')
@@ -317,79 +375,132 @@ def waste_monthly_report(request):
 
 @login_required
 def collector_dashboard(request):
+
     user = request.user
     today = timezone.now().date()
 
     # ==========================================
-    # INTERNAL WASTE INTAKE (USER ONLY)
+    # WASTE INTAKE (CURRENT USER)
     # ==========================================
     my_waste = WasteIntake.objects.filter(created_by=user)
 
-    total_waste = my_waste.aggregate(total=Sum('quantity'))['total'] or 0
-    received = my_waste.filter(status='received').count()
-    processing = my_waste.filter(status='processing').count()
-    completed = my_waste.filter(status='completed').count()
+    total_waste = my_waste.aggregate(
+        total=Sum('quantity')
+    )['total'] or 0
+
+    received = my_waste.filter(
+        status='received'
+    ).count()
+
+    processing = my_waste.filter(
+        status='processing'
+    ).count()
+
+    completed = my_waste.filter(
+        status='completed'
+    ).count()
+
+    recent = my_waste.order_by(
+        '-created_at'
+    )[:10]
 
     # ==========================================
-    # RECENT LOGS (USER ONLY - MAX 10 RECORDS)
+    # PURCHASE HISTORY (CURRENT USER)
     # ==========================================
-    recent_purchases = WastePurchase.objects.select_related('supplier', 'category')\
-        .filter(created_by=user)\
-        .order_by('-created_at')[:10]
+    purchases = WastePurchase.objects.select_related(
+        'supplier',
+        'category'
+    ).filter(
+        created_by=user
+    )
 
-    latest_purchase = recent_purchases[0] if recent_purchases else None
+    recent_purchases = purchases.order_by(
+        '-created_at'
+    )[:20]
 
-    total_purchases = WastePurchase.objects.filter(created_by=user).count()
+    latest_purchase = recent_purchases.first()
 
-    total_paid = WastePurchase.objects.filter(created_by=user).aggregate(
+    total_purchases = purchases.count()
+
+    total_paid = purchases.aggregate(
         total=Sum('total_amount')
     )['total'] or 0
 
     # ==========================================
-    # TODAY'S SHIFT LOGS
+    # TODAY PURCHASES
     # ==========================================
-    todays_purchases = WastePurchase.objects.filter(
-        created_by=user,
+    today_purchases = purchases.filter(
         created_at__date=today
+    ).order_by('-created_at')
+
+    today_qty = today_purchases.aggregate(
+        total=Sum('quantity')
+    )['total'] or 0
+
+    today_cash_payout = today_purchases.filter(
+        is_paid_on_delivery=True
+    ).aggregate(
+        total=Sum('total_amount')
+    )['total'] or 0
+
+    today_credit_debt = today_purchases.filter(
+        is_paid_on_delivery=False
+    ).aggregate(
+        total=Sum('total_amount')
+    )['total'] or 0
+
+    # ==========================================
+    # CATEGORY SUMMARY
+    # ==========================================
+    category_summary = purchases.values(
+        'category__name'
+    ).annotate(
+        total_qty=Sum('quantity')
+    ).order_by('-total_qty')
+
+    # ==========================================
+    # SUPPLIERS
+    # ==========================================
+    suppliers = Supplier.objects.filter(
+        status='active'
+    ).count()
+
+    # ==========================================
+    # DASHBOARD RENDER
+    # ==========================================
+    return render(
+        request,
+        'waste_management/collector_dashboard.html',
+        {
+            # Waste Intake
+            'total_waste': total_waste,
+            'received': received,
+            'processing': processing,
+            'completed': completed,
+            'recent': recent,
+
+            # Purchases
+            'recent_purchases': recent_purchases,
+            'latest_purchase': latest_purchase,
+            'total_purchases': total_purchases,
+            'total_paid': total_paid,
+
+            # Today's Activity
+            'today_purchases': today_purchases,
+            'today_qty': today_qty,
+            'today_cash_payout': today_cash_payout,
+            'today_credit_debt': today_credit_debt,
+
+            # Summary
+            'category_summary': category_summary,
+            'suppliers': suppliers,
+
+            # Date
+            'cv_date': today,
+        }
     )
-
-    today_qty = todays_purchases.aggregate(total=Sum('quantity'))['total'] or 0
-
-    today_cash_payout = todays_purchases.filter(is_paid_on_delivery=True)\
-        .aggregate(total=Sum('total_amount'))['total'] or 0
-
-    today_credit_debt = todays_purchases.filter(is_paid_on_delivery=False)\
-        .aggregate(total=Sum('total_amount'))['total'] or 0
-
-    # ==========================================
-    # GLOBAL ACCESS DATA (FIXED)
-    # ==========================================
-    suppliers = Supplier.objects.filter(status='active').count()
-
-    categories = WastePurchase.objects.values('category__name')\
-    .annotate(total_qty=Sum('quantity'))\
-    .order_by('-total_qty')
-    # ==========================================
-    # RENDER
-    # ==========================================
-    return render(request, 'waste_management/collector_dashboard.html', {
-        'total_waste': total_waste,
-        'received': received,
-        'processing': processing,
-        'completed': completed,
-
-        'recent_purchases': recent_purchases,
-        'total_purchases': total_purchases,
-        'latest_purchase': latest_purchase,
-        'total_paid': total_paid,
-        'suppliers': suppliers,
-        'categories': categories,
-
-        'today_qty': today_qty,
-        'today_cash_payout': today_cash_payout,
-        'today_credit_debt': today_credit_debt,
-        'cv_date': today,
-    })
+from decimal import Decimal
+from django.contrib import messages
 
 @login_required
 def waste_purchase(request):
@@ -397,29 +508,89 @@ def waste_purchase(request):
     suppliers = Supplier.objects.all()
     categories = WasteCategory.objects.all()
 
-    print("🔥 SUPPLIERS IN WASTE:", suppliers.count())
-
     if request.method == "POST":
 
         supplier_id = request.POST.get('supplier')
         category_id = request.POST.get('category')
-        quantity = request.POST.get('quantity')
-        unit_price = request.POST.get('unit_price')
+
+        quantity = request.POST.get('quantity', '').strip()
+        unit_price = request.POST.get('unit_price', '').strip()
+
+        timber_size = request.POST.get('timber_size', '').strip()
+        timber_length = request.POST.get('timber_length', '').strip()
+        timber_pieces = request.POST.get('timber_pieces', '').strip()
+
+        is_paid_on_delivery = (
+            request.POST.get('is_paid_on_delivery') == 'on'
+        )
+
+        # =========================
+        # VALIDATE UNIT PRICE
+        # =========================
+        try:
+            unit_price = Decimal(unit_price)
+        except:
+            messages.error(request, "Invalid unit price.")
+            return redirect('waste_purchase')
+
+        # =========================
+        # TIMBER PURCHASE
+        # =========================
+        if timber_pieces:
+
+            try:
+                quantity = Decimal(timber_pieces)
+            except:
+                messages.error(request, "Invalid timber pieces.")
+                return redirect('waste_purchase')
+
+        # =========================
+        # NORMAL WASTE PURCHASE
+        # =========================
+        else:
+
+            if not quantity:
+                messages.error(request, "Quantity is required.")
+                return redirect('waste_purchase')
+
+            try:
+                quantity = Decimal(quantity)
+            except:
+                messages.error(request, "Invalid quantity.")
+                return redirect('waste_purchase')
 
         WastePurchase.objects.create(
             supplier_id=supplier_id,
             category_id=category_id,
             quantity=quantity,
             unit_price=unit_price,
+            is_paid_on_delivery=is_paid_on_delivery,
             created_by=request.user
+        )
+        log_action(
+            user=request.user,
+            action_type="purchase_order",
+            model_name="WastePurchase",
+            record_id=purchase.id,
+            description=f"Created Waste Purchase #{purchase.id}",
+            ip_address=request.META.get("REMOTE_ADDR"),
+            user_agent=request.META.get("HTTP_USER_AGENT", "")
+        )
+        messages.success(
+            request,
+            "Waste purchase recorded successfully."
         )
 
         return redirect('waste_dashboard')
 
-    return render(request, 'waste_management/add_purchase.html', {
-        'suppliers': suppliers,
-        'categories': categories
-    })
+    return render(
+        request,
+        'waste_management/add_purchase.html',
+        {
+            'suppliers': suppliers,
+            'categories': categories
+        }
+    )
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from waste_management.models import WastePurchase

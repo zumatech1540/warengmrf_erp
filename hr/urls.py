@@ -37,4 +37,13 @@ urlpatterns = [
     path('attendance/', views.attendance_list, name='attendance_list'),
     path('attendance/clock-in/', views.clock_in, name='clock_in'),
     path('attendance/clock-out/', views.clock_out, name='clock_out'),
+    path('salary-advance/', views.salary_advance_request, name='salary_advance_request'),
+    path('my-leaves/', views.my_leave_history, name='my_leave_history'),
+    path(
+    'my-salary-advances/',
+    views.my_salary_advances,
+    name='my_salary_advances'
+),
+
+
 ]

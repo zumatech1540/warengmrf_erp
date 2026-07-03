@@ -1,149 +1,247 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <style>
-        @page {
-            size: a4;
-            margin: 2cm;
-        }
-        body { 
-            font-family: 'Helvetica', 'Arial', sans-serif; 
-            color: #333333; 
-            line-height: 1.4;
-            font-size: 10pt;
-        }
-        
-        /* Brand Header Section */
-        .header-container {
-            margin-bottom: 12pt;
-        }
-        .logo-placeholder {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 5px;
-        }
-        .company-title {
-            font-size: 20pt;
-            font-weight: bold;
-            color: #000000;
-            margin: 0 0 5px 0;
-            text-transform: uppercase;
-        }
-        .company-info {
-            font-size: 10pt;
-            color: #333333;
-            margin: 0;
-        }
-        
-        /* Receipt Header Box */
-        .receipt-header-box {
-            margin-top: 12pt;
-            margin-bottom: 12pt;
-            font-size: 10pt;
-        }
-        .receipt-title {
-            font-size: 14pt;
-            font-weight: bold;
-            margin: 0 0 4px 0;
-        }
+<meta charset="utf-8">
 
-        /* Supplier Info Section */
-        .supplier-info {
-            margin-top: 12pt;
-            margin-bottom: 12pt;
-            font-size: 10pt;
-        }
+<style>
 
-        /* Items Table Section */
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 12pt;
-            margin-bottom: 20pt;
-            font-size: 10pt;
-        }
-        .items-table th, .items-table td {
-            border: 0.5pt solid #808080;
-            padding: 6px;
-            text-align: center;
-        }
-        .items-table th {
-            background-color: #1f4e79;
-            color: #ffffff;
-            font-weight: bold;
-        }
-        .total-row td {
-            background-color: #d3d3d3;
-            font-weight: bold;
-        }
-        
-        /* Terms & Conditions Footer */
-        .terms-footer {
-            margin-top: 20pt;
-            font-size: 10pt;
-        }
-    </style>
+@page {
+    size: A4;
+    margin: 1.5cm;
+}
+
+body{
+    font-family: Helvetica, Arial, sans-serif;
+    font-size:11px;
+    color:#222;
+}
+
+/* ==========================
+   COMPANY HEADER
+========================== */
+
+.company-header{
+    text-align:center;
+    border-bottom:2px solid #000;
+    padding-bottom:10px;
+    margin-bottom:20px;
+}
+
+.company-name{
+    font-size:22px;
+    font-weight:bold;
+    text-transform:uppercase;
+}
+
+.company-details{
+    font-size:10px;
+    margin-top:5px;
+}
+
+/* ==========================
+   RECEIPT TITLE
+========================== */
+
+.receipt-title{
+    text-align:center;
+    font-size:18px;
+    font-weight:bold;
+    margin-bottom:15px;
+}
+
+.info-table{
+    width:100%;
+    margin-bottom:15px;
+}
+
+.info-table td{
+    padding:3px;
+    vertical-align:top;
+}
+
+/* ==========================
+   PURCHASE TABLE
+========================== */
+
+.items-table{
+    width:100%;
+    border:1px solid #000;
+}
+
+.items-table th{
+    border:1px solid #000;
+    padding:6px;
+    background:#d9d9d9;
+    font-weight:bold;
+    text-align:center;
+}
+
+.items-table td{
+    border:1px solid #000;
+    padding:6px;
+    text-align:center;
+}
+
+.total-label{
+    text-align:right;
+    font-weight:bold;
+}
+
+.total-value{
+    font-weight:bold;
+}
+
+/* ==========================
+   FOOTER
+========================== */
+
+.footer{
+    margin-top:25px;
+    font-size:10px;
+}
+
+.signature{
+    margin-top:40px;
+}
+
+</style>
 </head>
+
 <body>
 
-    <div class="header-container">
-        <img class="logo-placeholder" src="static/images/logo.png" alt="">
-        <h1 class="company-title">Warengmrf ERP SYSTEM</h1>
-        <p class="company-info">
-            Eldoret, Kenya<br/>
-            Email: info@naiberi-erp.com<br/>
-            Phone: +254 716 170 389
-        </p>
+<!-- ==========================
+     COMPANY HEADER
+========================== -->
+
+<div class="company-header">
+
+    <div class="company-name">
+        WARENG MRF ERP SYSTEM
     </div>
 
-    <div class="receipt-header-box">
-        <div class="receipt-title">RECEIPT</div>
-        <strong>Receipt No:</strong> WP-{{ purchase.id }}<br/>
-        <strong>Date:</strong> {{ purchase.created_at|date:"Y-m-d H:i" }}
+    <div class="company-details">
+        Eldoret, Kenya<br>
+        Email: info@warengmrf.co.ke<br>
+        Phone: +254 716 170 389
     </div>
 
-    <div class="supplier-info">
-        <strong>Received From:</strong><br/>
-        {{ purchase.supplier.name }}<br/>
-        {% if purchase.supplier.phone %}{{ purchase.supplier.phone }}<br/>{% endif %}
-        <strong>Collector:</strong> {{ purchase.created_by.get_full_name|default:purchase.created_by.username }}
+</div>
+
+<!-- ==========================
+     RECEIPT TITLE
+========================== -->
+
+<div class="receipt-title">
+    WASTE PURCHASE RECEIPT
+</div>
+
+<table class="info-table">
+
+    <tr>
+        <td width="50%">
+            <strong>Receipt No:</strong>
+            WP-{{ purchase.id }}
+        </td>
+
+        <td width="50%" align="right">
+            <strong>Date:</strong>
+            {{ purchase.created_at|date:"d M Y H:i" }}
+        </td>
+    </tr>
+
+</table>
+
+<hr>
+
+<table class="info-table">
+
+    <tr>
+        <td width="50%">
+            <strong>Supplier:</strong><br>
+
+            {{ purchase.supplier.company_name }}<br>
+
+            {% if purchase.supplier.phone %}
+                {{ purchase.supplier.phone }}<br>
+            {% endif %}
+
+            {% if purchase.supplier.address %}
+                {{ purchase.supplier.address }}
+            {% endif %}
+        </td>
+
+        <td width="50%">
+            <strong>Collected By:</strong><br>
+
+            {{ purchase.created_by.get_full_name|default:purchase.created_by.username }}
+        </td>
+    </tr>
+
+</table>
+
+<!-- ==========================
+     PURCHASE DETAILS
+========================== -->
+
+<table class="items-table">
+
+    <tr>
+        <th width="40%">Waste Category</th>
+        <th width="15%">Quantity</th>
+        <th width="20%">Unit Price</th>
+        <th width="25%">Amount</th>
+    </tr>
+
+    <tr>
+        <td>{{ purchase.category.name }}</td>
+        <td>{{ purchase.quantity }} KG</td>
+        <td>KES {{ purchase.unit_price }}</td>
+        <td>KES {{ purchase.total_amount }}</td>
+    </tr>
+
+    <tr>
+        <td colspan="3" class="total-label">
+            TOTAL AMOUNT
+        </td>
+
+        <td class="total-value">
+            KES {{ purchase.total_amount }}
+        </td>
+    </tr>
+
+</table>
+
+<!-- ==========================
+     PAYMENT STATUS
+========================== -->
+
+<div class="footer">
+
+    <strong>Payment Status:</strong>
+
+    {% if purchase.is_paid_on_delivery %}
+        PAID
+    {% else %}
+        CREDIT / ACCOUNTS PAYABLE
+    {% endif %}
+
+    <br><br>
+
+    <strong>Payment Method:</strong>
+    {{ purchase.supplier.get_payment_method_display }}
+
+    <br><br>
+
+    Thank you for supplying recyclable waste materials to Wareng MRF.
+
+    <div class="signature">
+
+        ___________________________<br>
+        Authorized Officer
+
     </div>
 
-    <table class="items-table">
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th>Qty</th>
-                <th>Unit Price</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>{{ purchase.category.name }}</td>
-                <td>{{ purchase.quantity }} kg</td>
-                <td>{{ purchase.unit_price }}</td>
-                <td>{{ purchase.total_amount }}</td>
-            </tr>
-            <tr class="total-row">
-                <td></td>
-                <td></td>
-                <td>TOTAL</td>
-                <td>KES {{ purchase.total_amount }}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <div class="terms-footer">
-        <strong>Terms &amp; Conditions</strong><br/>
-        Thank you for doing business with Warengmrf ERP.<br/>
-        {% if purchase.is_paid_on_delivery %}
-        Payment settled instantly on-site via <strong>{{ purchase.supplier.get_payment_method_display }}</strong>.
-        {% else %}
-        Payment collection registered on credit terms via Account Payable accountancy ledgers.
-        {% endif %}
-    </div>
+</div>
 
 </body>
 </html>

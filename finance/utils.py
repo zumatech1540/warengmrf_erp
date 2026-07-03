@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from datetime import datetime
 from django.db import transaction
 
-from .models import Payment, InvoiceSequence
+
 
 
 # =========================================================

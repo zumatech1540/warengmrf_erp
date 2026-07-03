@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+
+<h2 class="mb-4">
+    💰 My Salary Advance Requests
+</h2>
+
+<div class="card shadow-sm">
+
+    <div class="card-body">
+
+        <table class="table table-bordered">
+
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in advances %}
+
+                <tr>
+                    <td>{{ item.created_at|date:"Y-m-d" }}</td>
+                    <td>KES {{ item.amount }}</td>
+                    <td>{{ item.reason }}</td>
+                    <td>
+                        <span class="badge bg-secondary">
+                            {{ item.status }}
+                        </span>
+                    </td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="4">
+                        No salary advance requests found.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+</div>
+
+{% endblock %}

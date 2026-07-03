@@ -32,6 +32,26 @@ urlpatterns = [
         views.add_expense,
         name='add_expense'
     ),
+    path(
+    'customer-payment/<int:sale_id>/',
+    views.receive_customer_payment,
+    name='receive_customer_payment'
+    ),
+path(
+    'customer-payments/',
+    views.customer_payment_list,
+    name='customer_payment_list'
+),
+path(
+    'journals/',
+    views.journal_list,
+    name='journal_list'
+),
+path(
+    'waste-receipts/',
+    views.waste_receipt_list,
+    name='waste_receipt_list'
+),
 
 # AR (Accounts Receivable)
 path('ar/', views.ar_list, name='ar_list'),
@@ -46,4 +66,5 @@ path('invoice/<int:ar_id>/pdf/', views.invoice_pdf_view, name='invoice_pdf'),
 path('ledger/', views.ledger_list, name='ledger_list'),
 path('reports/', views.financial_reports, name='financial_reports'),
 path('reports/export/<str:report_type>/', views.export_report_pdf, name='export_report_pdf'),
+path('invoices/', views.invoice_list, name='invoice_list'),
 ]

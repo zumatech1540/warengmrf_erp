@@ -115,17 +115,35 @@
 
                             <td>
 
-                                <!-- APPROVE -->
-                                <a href="{% url 'approve_leave' leave.id %}"
-                                   class="btn btn-sm btn-success">
-                                    Approve
-                                </a>
+                               <td>
 
-                                <!-- REJECT -->
-                                <a href="{% url 'reject_leave' leave.id %}"
-                                   class="btn btn-sm btn-danger">
-                                    Reject
-                                </a>
+    {% if leave.status == "pending" %}
+
+        <a href="{% url 'update_leave_status' leave.id 'approved' %}"
+           class="btn btn-success btn-sm">
+            ✓ Approve
+        </a>
+
+        <a href="{% url 'update_leave_status' leave.id 'rejected' %}"
+           class="btn btn-danger btn-sm">
+            ✗ Reject
+        </a>
+
+    {% elif leave.status == "approved" %}
+
+        <span class="badge bg-success">
+            Approved
+        </span>
+
+    {% else %}
+
+        <span class="badge bg-danger">
+            Rejected
+        </span>
+
+    {% endif %}
+
+</td>
 
                             </td>
 

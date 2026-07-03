@@ -1,47 +1,301 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
+
+<style>
+
+.invoice-container{
+    max-width:1000px;
+    margin:auto;
+    background:#fff;
+    padding:40px;
+    position:relative;
+}
+
+.company-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:3px solid #198754;
+    padding-bottom:20px;
+    margin-bottom:30px;
+}
+
+.logo{
+    height:90px;
+}
+
+.company-details{
+    text-align:right;
+}
+
+.company-details h2{
+    margin:0;
+    color:#198754;
+    font-weight:800;
+}
+
+.company-details p{
+    margin:0;
+    font-size:14px;
+}
+
+.invoice-title{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.invoice-title h1{
+    font-weight:900;
+    letter-spacing:3px;
+}
+
+.invoice-info{
+    margin-bottom:30px;
+}
+
+.invoice-info table{
+    width:100%;
+}
+
+.invoice-info td{
+    padding:5px;
+}
+
+.table-invoice th{
+    background:#198754;
+    color:white;
+}
+
+.total-row{
+    font-size:22px;
+    font-weight:bold;
+    color:#198754;
+}
+
+.signature-section{
+    margin-top:80px;
+}
+
+.signature-line{
+    border-top:1px solid #000;
+    width:250px;
+    margin-top:50px;
+}
+
+.watermark{
+    position:absolute;
+    top:45%;
+    left:50%;
+    transform:translate(-50%, -50%) rotate(-25deg);
+    font-size:90px;
+    font-weight:900;
+    color:rgba(25,135,84,0.08);
+    pointer-events:none;
+    z-index:0;
+}
+
+.content-area{
+    position:relative;
+    z-index:2;
+}
+
+.print-btn{
+    margin-top:20px;
+}
+
+@media print{
+
+    .print-btn{
+        display:none;
+    }
+
+    .navbar,
+    .sidebar,
+    footer{
+        display:none !important;
+    }
+
+    body{
+        background:white;
+    }
+
+    .invoice-container{
+        box-shadow:none;
+        border:none;
+    }
+}
+
+</style>
 
 <div class="container mt-4">
 
-    <div class="card shadow p-4">
+    <div class="invoice-container shadow">
 
-        <h2 class="text-center">INVOICE</h2>
-        <hr>
+        <!-- WATERMARK -->
+        <div class="watermark">
+            PAID
+        </div>
 
-        <p><strong>Invoice No:</strong> INV-{{ sale.id }}</p>
-        <p><strong>Customer:</strong> {{ sale.customer.company_name }}</p>
-        <p><strong>Date:</strong> {{ sale.created_at }}</p>
+        <div class="content-area">
 
-        <hr>
+            <!-- HEADER -->
+            <div class="company-header">
 
-        <table class="table table-bordered">
+                <div>
+                    <!-- Replace with your logo -->
+                    <img
+                        src="{% static 'images/logo.png' %}"
+                        class="logo"
+                        alt="Company Logo"
+                    >
+                </div>
 
-            <tr>
-                <th>Item</th>
-                <td>{{ sale.item.name }}</td>
-            </tr>
+                <div class="company-details">
+                    <h2>NAIBERI MRF ERP</h2>
+                    <p>Waste Recycling & Resource Recovery</p>
+                    <p>Eldoret, Kenya</p>
+                    <p>Phone: +254 700 000 000</p>
+                    <p>Email: info@naiberimrf.co.ke</p>
+                    <p>KRA PIN: PXXXXXXXXX</p>
+                </div>
 
-            <tr>
-                <th>Quantity</th>
-                <td>{{ sale.quantity }}</td>
-            </tr>
+            </div>
 
-            <tr>
-                <th>Unit Price</th>
-                <td>{{ sale.unit_price }}</td>
-            </tr>
+            <!-- TITLE -->
+            <div class="invoice-title">
+                <h1>SALES INVOICE</h1>
+            </div>
 
-            <tr>
-                <th>Total</th>
-                <td><b>{{ sale.total_amount }}</b></td>
-            </tr>
+            <!-- INVOICE INFO -->
+            <div class="invoice-info">
 
-        </table>
+                <table>
+                    <tr>
+                        <td>
+                            <strong>Invoice Number:</strong>
+                            INV-{{ sale.id }}
+                        </td>
 
-        <button onclick="window.print()" class="btn btn-primary">
-            Print Invoice
-        </button>
+                        <td class="text-end">
+                            <strong>Date:</strong>
+                            {{ sale.created_at|date:"d M Y H:i" }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <strong>Customer:</strong>
+                            {{ sale.customer.company_name }}
+                        </td>
+
+                        <td class="text-end">
+                            <strong>Status:</strong>
+                            {{ sale.status|upper }}
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+
+            <!-- SALES TABLE -->
+            <table class="table table-bordered table-invoice">
+
+                <thead>
+                    <tr>
+                        <th>Item Description</th>
+                        <th width="120">Quantity</th>
+                        <th width="150">Unit Price</th>
+                        <th width="180">Amount</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>{{ sale.item.name }}</td>
+
+                        <td>
+                            {{ sale.quantity }}
+                        </td>
+
+                        <td>
+                            KES {{ sale.unit_price|floatformat:2 }}
+                        </td>
+
+                        <td>
+                            KES {{ sale.total_amount|floatformat:2 }}
+                        </td>
+
+                    </tr>
+
+                    <tr>
+                        <td colspan="3" class="text-end fw-bold">
+                            TOTAL
+                        </td>
+
+                        <td class="total-row">
+                            KES {{ sale.total_amount|floatformat:2 }}
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+            <!-- NOTES -->
+            <div class="mt-4">
+
+                <h6 class="fw-bold">
+                    Terms & Conditions
+                </h6>
+
+                <p class="text-muted">
+                    Thank you for doing business with Naiberi MRF.
+                    Payment is due according to agreed customer credit terms.
+                </p>
+
+            </div>
+
+            <!-- SIGNATURE -->
+            <div class="signature-section">
+
+                <div class="row">
+
+                    <div class="col-6">
+
+                        <div class="signature-line"></div>
+
+                        <strong>Authorized By</strong>
+
+                    </div>
+
+                    <div class="col-6 text-end">
+
+                        <div style="display:inline-block">
+                            <div class="signature-line"></div>
+                            <strong>Customer Signature</strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- PRINT -->
+            <div class="text-center print-btn">
+
+                <button
+                    onclick="window.print()"
+                    class="btn btn-success btn-lg"
+                >
+                    🖨 Print Invoice
+                </button>
+
+            </div>
+
+        </div>
 
     </div>
 

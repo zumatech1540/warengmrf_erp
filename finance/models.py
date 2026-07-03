@@ -4,6 +4,13 @@ from django.utils import timezone
 from decimal import Decimal
 from django.db.models import Sum
 from core.models import Transaction, Department 
+from decimal import Decimal
+
+from django.db import models
+from django.conf import settings
+from django.utils import timezone
+from sales.models import Sale
+
 
 # =========================================================
 # INCOME
@@ -86,15 +93,19 @@ class Expense(models.Model):
         self.amount = Decimal(self.amount or 0)
 
         with transaction.atomic():
+
             super().save(*args, **kwargs)
 
             if not self.transaction:
+
                 self.transaction = Transaction.objects.create(
-                    type='expense',
+                    type='finance',
+                    department=get_or_create_department('finance'),
                     description=f"{self.category} - {self.amount}",
                     amount=self.amount,
                     created_by=getattr(self, "created_by", None)
                 )
+
                 super().save(update_fields=['transaction'])
 
     def __str__(self):
@@ -273,8 +284,6 @@ class Payment(models.Model):
                 )
 
             # =========================
-            # AP PAYMENT
-            # =========================
             elif self.ap:
 
                 self.ap.amount_paid = Decimal(str(self.ap.amount_paid or 0)) + self.amount
@@ -284,10 +293,10 @@ class Payment(models.Model):
                     reference=f"PAY-AP-{self.id}",
                     description=f"Supplier payment: {self.ap.supplier_name}",
                     debit_account="Accounts Payable",
-                    credit_account="Cash/Bank",
+                    credit_account="Cash",
                     amount=self.amount,
                     user=self.created_by
-                )
+    )
 
     def __str__(self):
         return f"{self.payment_type.upper()} - {self.amount}"
@@ -496,3 +505,176 @@ class ChartOfAccount(models.Model):
 
 
 
+
+
+class CustomerPayment(models.Model):
+
+    PAYMENT_METHODS = [
+        ('cash', 'Cash'),
+        ('bank', 'Bank Transfer'),
+        ('mpesa', 'M-Pesa'),
+        ('cheque', 'Cheque'),
+    ]
+
+    receivable = models.ForeignKey(
+        AccountReceivable,
+        on_delete=models.CASCADE,
+        related_name='payments'
+    )
+
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    payment_method = models.CharField(
+        max_length=50,
+        choices=PAYMENT_METHODS,
+        default='cash'
+    )
+
+    reference = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
+    notes = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    received_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def save(self, *args, **kwargs):
+
+        is_new = self.pk is None
+
+        super().save(*args, **kwargs)
+
+        if not is_new:
+            return
+
+        # ----------------------------------
+        # UPDATE ACCOUNTS RECEIVABLE
+        # ----------------------------------
+
+        self.receivable.amount_paid = (
+            Decimal(str(self.receivable.amount_paid))
+            + Decimal(str(self.amount))
+        )
+
+        self.receivable.save()
+
+        # ----------------------------------
+        # FIND RELATED SALE
+        # ----------------------------------
+
+        try:
+
+            from sales.models import Sale
+
+            sale = Sale.objects.filter(
+                description=f"Sale #{self.receivable.id}"
+            ).first()
+
+        except Exception:
+            sale = None
+
+        # ----------------------------------
+        # IF FULLY PAID
+        # ----------------------------------
+
+        if self.receivable.balance() <= 0:
+
+            self.receivable.status = 'paid'
+            self.receivable.save()
+
+            try:
+
+                sale = Sale.objects.filter(
+                    id=int(
+                        self.receivable.description.replace(
+                            "Sale #",
+                            ""
+                        )
+                    )
+                ).first()
+
+                if sale:
+                    sale.status = 'paid'
+                    sale.save()
+
+            except Exception:
+                pass
+
+        # ----------------------------------
+        # CREATE JOURNAL ENTRY
+        # ----------------------------------
+
+        try:
+
+            create_journal(
+                reference=f"CP-{self.id}",
+                description=(
+                    f"Customer Payment "
+                    f"{self.receivable.customer_name}"
+                ),
+                debit_account="Cash",
+                credit_account="Accounts Receivable",
+                amount=self.amount,
+                user=self.received_by
+            )
+
+        except Exception as e:
+            print(
+                f"Journal Creation Error: {e}"
+            )
+
+    def __str__(self):
+        return (
+            f"{self.receivable.customer_name}"
+            f" - KES {self.amount}"
+        )
+
+class Invoice(models.Model):
+
+    sale = models.OneToOneField(
+        'sales.Sale',
+        on_delete=models.CASCADE,
+        related_name='invoice'
+    )
+
+    invoice_number = models.CharField(
+        max_length=50,
+        unique=True
+    )
+
+    customer_name = models.CharField(
+        max_length=255
+    )
+
+    total_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    status = models.CharField(
+        max_length=20,
+        default='pending'
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return self.invoice_number

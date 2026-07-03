@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">
+            📝 Apply Leave
+        </h2>
+
+        <a href="{% url 'leave_list' %}" class="btn btn-outline-dark">
+            Back
+        </a>
+    </div>
+
+    <div class="card shadow border-0">
+
+        <div class="card-body">
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Leave Type
+                        </label>
+
+                        <select name="leave_type" class="form-select" required>
+                            <option value="">Select Leave Type</option>
+                            <option value="Annual Leave">Annual Leave</option>
+                            <option value="Sick Leave">Sick Leave</option>
+                            <option value="Maternity Leave">Maternity Leave</option>
+                            <option value="Paternity Leave">Paternity Leave</option>
+                            <option value="Compassionate Leave">Compassionate Leave</option>
+                            <option value="Study Leave">Study Leave</option>
+                            <option value="Unpaid Leave">Unpaid Leave</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            Start Date
+                        </label>
+
+                        <input type="date"
+                               name="start_date"
+                               class="form-control"
+                               required>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            End Date
+                        </label>
+
+                        <input type="date"
+                               name="end_date"
+                               class="form-control"
+                               required>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">
+                            Reason
+                        </label>
+
+                        <textarea name="reason"
+                                  rows="5"
+                                  class="form-control"
+                                  placeholder="Explain why you are requesting leave..."
+                                  required></textarea>
+                    </div>
+
+                </div>
+
+                <div class="mt-4">
+
+                    <button type="submit"
+                            class="btn btn-success">
+                        Submit Leave Request
+                    </button>
+
+                    <a href="{% url 'leave_list' %}"
+                       class="btn btn-secondary">
+                        Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

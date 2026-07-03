@@ -2,158 +2,238 @@
 
 {% block content %}
 
-<div class="container mt-4">
+<div class="container-fluid px-4 py-4">
 
     <!-- ================= HEADER ================= -->
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
-            <h2 class="fw-bold">🏢 HR Management Dashboard</h2>
+            <h2 class="fw-bold mb-1">
+                👥 Human Resource Dashboard
+            </h2>
+
             <p class="text-muted mb-0">
-                Human Resource overview: employees, attendance, leave & payroll
+                Employee Management, Attendance, Leave, Payroll & Workforce Analytics
             </p>
         </div>
 
-        <a href="{% url 'add_employee' %}" class="btn btn-dark">
-            + Add Employee
-        </a>
-
-    </div>
-
-    <!-- ================= KPI CARDS ================= -->
-    <div class="row g-3">
-
-        <!-- TOTAL EMPLOYEES -->
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 text-white bg-primary">
-                <div class="card-body text-center">
-                    <h6>Total Employees</h6>
-                    <h2 class="fw-bold">{{ total_employees }}</h2>
-                </div>
-            </div>
-        </div>
-
-        <!-- ACTIVE -->
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 text-white bg-success">
-                <div class="card-body text-center">
-                    <h6>Active Staff</h6>
-                    <h2 class="fw-bold">{{ active_employees }}</h2>
-                </div>
-            </div>
-        </div>
-
-        <!-- INACTIVE -->
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 text-white bg-warning">
-                <div class="card-body text-center">
-                    <h6>Inactive</h6>
-                    <h2 class="fw-bold">{{ inactive_employees }}</h2>
-                </div>
-            </div>
-        </div>
-
-        <!-- TERMINATED -->
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 text-white bg-danger">
-                <div class="card-body text-center">
-                    <h6>Terminated</h6>
-                    <h2 class="fw-bold">{{ terminated_employees }}</h2>
-                </div>
-            </div>
+        <div>
+            <a href="{% url 'add_employee' %}" class="btn btn-dark">
+                ➕ Add Employee
+            </a>
         </div>
 
     </div>
 
-    <!-- ================= SECOND ROW ================= -->
-    <div class="row mt-4 g-3">
+    <!-- ================= EMPLOYEE KPIs ================= -->
+    <div class="row g-4 mb-4">
 
-        <!-- ATTENDANCE SUMMARY -->
+        <div class="col-md-3">
+            <div class="card bg-primary text-white shadow border-0">
+                <div class="card-body text-center">
+                    <small>Total Employees</small>
+                    <h2>{{ total_employees }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-success text-white shadow border-0">
+                <div class="card-body text-center">
+                    <small>Active Staff</small>
+                    <h2>{{ active_employees }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-warning shadow border-0">
+                <div class="card-body text-center">
+                    <small>Inactive Staff</small>
+                    <h2>{{ inactive_employees }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-danger text-white shadow border-0">
+                <div class="card-body text-center">
+                    <small>Terminated</small>
+                    <h2>{{ terminated_employees }}</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= SECOND KPI ROW ================= -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-3">
+            <div class="card bg-info text-white shadow border-0">
+                <div class="card-body text-center">
+                    <small>New Hires This Month</small>
+                    <h2>{{ new_hires_month }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white shadow border-0">
+                <div class="card-body text-center">
+                    <small>Employees On Leave</small>
+                    <h2>{{ employees_on_leave }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-dark text-white shadow border-0">
+                <div class="card-body text-center">
+                    <small>Payroll Completion</small>
+                    <h2>{{ payroll_completion }}%</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow">
+                <div class="card-body text-center">
+                    <small>Unlinked Employees</small>
+                    <h2>{{ unlinked_employees }}</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= ATTENDANCE + LEAVE ================= -->
+    <div class="row g-4 mb-4">
+
         <div class="col-md-6">
-            <div class="card shadow-sm">
+
+            <div class="card shadow border-0 h-100">
+
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">🕒 Today's Attendance</h5>
+                </div>
 
                 <div class="card-body">
 
-                    <h5 class="mb-3">🕒 Today Attendance</h5>
-
-                    <div class="d-flex justify-content-between">
-                        <span>Present</span>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Present Employees</span>
                         <strong>{{ present_today }}</strong>
                     </div>
 
-                    <div class="d-flex justify-content-between">
-                        <span>Absent</span>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Absent Employees</span>
                         <strong>{{ absent_today }}</strong>
                     </div>
 
                     <div class="d-flex justify-content-between">
-                        <span>Late</span>
+                        <span>Late Employees</span>
                         <strong>{{ late_today }}</strong>
                     </div>
 
                 </div>
 
             </div>
+
         </div>
 
-        <!-- LEAVE SUMMARY -->
         <div class="col-md-6">
-            <div class="card shadow-sm">
+
+            <div class="card shadow border-0 h-100">
+
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">📝 Leave Management</h5>
+                </div>
 
                 <div class="card-body">
 
-                    <h5 class="mb-3">📝 Leave Requests</h5>
-
-                    <div class="d-flex justify-content-between">
-                        <span>Pending</span>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Pending Requests</span>
                         <strong>{{ pending_leaves }}</strong>
                     </div>
 
-                    <div class="d-flex justify-content-between">
-                        <span>Approved</span>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Approved Requests</span>
                         <strong>{{ approved_leaves }}</strong>
                     </div>
 
                     <div class="d-flex justify-content-between">
-                        <span>Rejected</span>
+                        <span>Rejected Requests</span>
                         <strong>{{ rejected_leaves }}</strong>
                     </div>
 
                 </div>
 
             </div>
+
         </div>
 
     </div>
 
-    <!-- ================= QUICK ACTIONS ================= -->
-    <div class="card mt-4 shadow-sm">
+    <!-- ================= PAYROLL + ADVANCES ================= -->
+    <div class="row g-4 mb-4">
 
-        <div class="card-body">
+        <div class="col-md-6">
 
-            <h5 class="mb-3">⚡ Quick Actions</h5>
+            <div class="card shadow border-0">
 
-            <div class="d-flex flex-wrap gap-2">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">💰 Payroll Center</h5>
+                </div>
 
-                <a href="{% url 'employee_list' %}" class="btn btn-outline-primary">
-                    Employees
-                </a>
+                <div class="card-body">
 
-                <a href="{% url 'attendance_list' %}" class="btn btn-outline-dark">
-                    Attendance
-                </a>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Current Month</span>
+                        <strong>{{ current_month }}</strong>
+                    </div>
 
-                <a href="{% url 'leave_list' %}" class="btn btn-outline-warning">
-                    Leave Requests
-                </a>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Payroll Records</span>
+                        <strong>{{ payroll_count }}</strong>
+                    </div>
 
-                <a href="{% url 'payroll_list' %}" class="btn btn-outline-success">
-                    Payroll
-                </a>
+                    <div class="d-flex justify-content-between">
+                        <span>Total Payroll Cost</span>
+                        <strong>KES {{ payroll_total|floatformat:2 }}</strong>
+                    </div>
 
-                <a href="{% url 'generate_payroll' %}" class="btn btn-outline-danger">
-                    Generate Payroll
-                </a>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-6">
+
+            <div class="card shadow border-0">
+
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">🏦 Salary Advances</h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Pending</span>
+                        <strong>{{ pending_advances }}</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Approved</span>
+                        <strong>{{ approved_advances }}</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span>Total Approved</span>
+                        <strong>KES {{ advance_amount|floatformat:2 }}</strong>
+                    </div>
+
+                </div>
 
             </div>
 
@@ -161,16 +241,134 @@
 
     </div>
 
-    <!-- ================= FUTURE ANALYTICS ================= -->
-    <div class="card mt-4 shadow-sm">
+    <!-- ================= QUICK ACTIONS ================= -->
+    <div class="card shadow border-0 mb-4">
+
+        <div class="card-header bg-light">
+            <h5 class="mb-0">⚡ HR Quick Actions</h5>
+        </div>
 
         <div class="card-body">
 
-            <h5>📊 HR Analytics (Coming Next)</h5>
+            <div class="row g-3">
 
-            <p class="text-muted mb-0">
-                This section will show employee growth trends, attendance graphs, payroll distribution, and performance KPIs.
-            </p>
+                <div class="col-md-2">
+                    <a href="{% url 'employee_list' %}" class="btn btn-outline-primary w-100">
+                        👥 Employees
+                    </a>
+                </div>
+
+                <div class="col-md-2">
+                    <a href="{% url 'attendance_list' %}" class="btn btn-outline-dark w-100">
+                        🕒 Attendance
+                    </a>
+                </div>
+
+                <div class="col-md-2">
+                    <a href="{% url 'leave_list' %}" class="btn btn-outline-warning w-100">
+                        📝 Leave
+                    </a>
+                </div>
+
+                <div class="col-md-2">
+                    <a href="{% url 'payroll_list' %}" class="btn btn-outline-success w-100">
+                        💰 Payroll
+                    </a>
+                </div>
+
+                <div class="col-md-2">
+                    <a href="{% url 'generate_payroll' %}" class="btn btn-outline-danger w-100">
+                        ⚙ Generate Payroll
+                    </a>
+                </div>
+
+                <div class="col-md-2">
+                    <a href="{% url 'add_employee' %}" class="btn btn-dark w-100">
+                        ➕ Employee
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ================= DEPARTMENT SUMMARY ================= -->
+    <div class="card shadow border-0 mb-4">
+
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">🏢 Department Distribution</h5>
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-bordered">
+
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Total Employees</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for dept in department_summary %}
+                    <tr>
+                        <td>{{ dept.department__name }}</td>
+                        <td>{{ dept.total }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2">No departments available</td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- ================= RECENT LEAVES ================= -->
+    <div class="card shadow border-0 mb-4">
+
+        <div class="card-header bg-warning">
+            <h5 class="mb-0">📝 Recent Leave Requests</h5>
+        </div>
+
+        <div class="card-body table-responsive">
+
+            <table class="table table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Leave Type</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for leave in recent_leaves %}
+                    <tr>
+                        <td>{{ leave.employee }}</td>
+                        <td>{{ leave.leave_type }}</td>
+                        <td>{{ leave.status }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">No leave requests found.</td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
 
         </div>
 

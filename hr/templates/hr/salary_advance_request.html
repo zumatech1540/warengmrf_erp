@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2> Salary Advance Request</h2>
+
+    <a href="{% url 'collector_dashboard' %}" class="btn btn-secondary">
+        Back
+    </a>
+</div>
+
+<div class="card shadow-sm">
+
+    <div class="card-body">
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label">
+                    Amount Requested (KES)
+                </label>
+
+                <input type="number"
+                       name="amount"
+                       step="0.01"
+                       class="form-control"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">
+                    Reason
+                </label>
+
+                <textarea name="reason"
+                          class="form-control"
+                          rows="4"
+                          required></textarea>
+            </div>
+
+            <button type="submit"
+                    class="btn btn-success">
+                Submit Request
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+</div>
+
+{% endblock %}

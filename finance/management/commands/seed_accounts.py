@@ -11,9 +11,9 @@ class Command(BaseCommand):
             ("1001", "Cash", "asset"),
             ("1002", "Bank", "asset"),
             ("1101", "Accounts Receivable", "asset"),
-
+            ("1201", "Inventory", "asset"),
             ("2001", "Accounts Payable", "liability"),
-
+            
             ("3001", "Capital", "equity"),
 
             ("4001", "Sales Revenue", "income"),

@@ -72,10 +72,14 @@ class AuditLog(models.Model):
 
     action_type = models.CharField(
         max_length=30,
-        choices=ACTION_TYPES
+        choices=ACTION_TYPES,
+        db_index=True
     )
 
-    model_name = models.CharField(max_length=100)
+    model_name = models.CharField(
+        max_length=100,
+        db_index=True
+    )
 
     record_id = models.IntegerField(
         null=True,
@@ -84,9 +88,6 @@ class AuditLog(models.Model):
 
     description = models.TextField()
 
-    # =========================
-    # ERP TRACEABILITY (IMPORTANT)
-    # =========================
     ip_address = models.GenericIPAddressField(
         null=True,
         blank=True
@@ -98,11 +99,19 @@ class AuditLog(models.Model):
     )
 
     timestamp = models.DateTimeField(
-        auto_now_add=True
+        auto_now_add=True,
+        db_index=True
     )
 
+    class Meta:
+        ordering = ['-timestamp']
+
     def __str__(self):
-        return f"{self.user} | {self.action_type} | {self.model_name}"
+        return (
+            f"{self.user} | "
+            f"{self.action_type} | "
+            f"{self.model_name}"
+        )
 
 
 
