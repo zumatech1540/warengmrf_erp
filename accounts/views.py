@@ -78,3 +78,4 @@ def dashboard(request):
         return redirect("dashboard_redirect")
 
     return render(request, "dashboard/erp_home.html")
+

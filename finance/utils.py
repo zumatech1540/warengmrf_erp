@@ -24,7 +24,7 @@ def generate_payment_receipt(payment):
     # --- HEADER / BRANDING ---
     p.setFont("Helvetica-Bold", 16)
     p.setFillColorRGB(0.1, 0.1, 0.2) # Deep Professional Navy
-    p.drawString(60, 800, "Warengmrf ERP")
+    p.drawString(60, 800, "naiberi_erp ERP")
 
     p.setFont("Helvetica-Bold", 11)
     p.setFillColorRGB(0.4, 0.4, 0.4) # Slate Grey
@@ -128,7 +128,7 @@ def generate_financial_report_pdf(report_type, data):
     )
 
     # --- DOCUMENT HEADER ---
-    story.append(Paragraph("Warengmrf ERP", title_style))
+    story.append(Paragraph("naiberi_erp ERP", title_style))
     story.append(Paragraph(f"Official Statement: {report_type.replace('_', ' ').title()} — Exported {datetime.now().strftime('%d %b %Y')}", subtitle_style))
     story.append(Spacer(1, 15))
     

@@ -13,6 +13,7 @@ admin.site.index_title = "Welcome to WarengERP Control Panel"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),
 
     path('dashboard/', include('dashboard.urls')),
     path('', include('accounts.urls')),

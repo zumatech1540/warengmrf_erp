@@ -692,7 +692,7 @@ def download_receipt(request, purchase_id):
     
     context = {
         'purchase': purchase,
-        'company_name': "Warengmrf",  # Your company branding
+        'company_name': "naiberi_erp",  # Your company branding
         'generated_at': purchase.created_at
     }
     

@@ -27,7 +27,7 @@ def generate_invoice_pdf(invoice):
         elements.append(logo)
 
     company_name = Paragraph(
-        "<b>Warengmrf ERP SYSTEM</b>",
+        "<b>naiberi_erp ERP SYSTEM</b>",
         styles['Title']
     )
 
@@ -112,7 +112,7 @@ def generate_invoice_pdf(invoice):
     footer = Paragraph(
         """
         <b>Terms & Conditions</b><br/>
-        Thank you for doing business with Warengmrf ERP.<br/>
+        Thank you for doing business with naiberi_erp ERP.<br/>
         Goods once sold are subject to company policy.<br/>
         Payment is due as per agreement.
         """,
